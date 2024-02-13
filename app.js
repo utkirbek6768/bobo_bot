@@ -49,7 +49,7 @@ bot.on("web_app_data", async (msg) => {
         functions.createOrder(bot, chatId, data);
       }
     } else {
-      console.error("web_app_data or data property is missing in the message.");
+      console.error("web_app_data is missing in the message.");
     }
   } catch (error) {
     console.error("Error handling web_app_data event:", error);
