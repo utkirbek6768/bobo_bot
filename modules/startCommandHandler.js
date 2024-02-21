@@ -21,7 +21,7 @@ const StartCommand = async (bot, msg) => {
   //   }
 };
 
-const testCommand = async (bot, msg) => {
+const driverRegister = async (bot, msg) => {
   try {
     const chatId = msg.chat.id;
     const langs = functions.loadLanguageFile("ru");
@@ -33,5 +33,5 @@ const testCommand = async (bot, msg) => {
 
 module.exports = {
   StartCommand,
-  testCommand,
+  driverRegister,
 };

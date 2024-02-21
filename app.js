@@ -5,7 +5,11 @@ const TelegramBot = require("node-telegram-bot-api");
 
 // Importing custom modules
 const { handleMessage } = require("./modules/messageHandler");
-const { StartCommand } = require("./modules/startCommandHandler");
+const {
+  StartCommand,
+  driverRegister,
+} = require("./modules/startCommandHandler");
+
 const { handleCallbackQuery } = require("./modules/callbackQueryHandler");
 const functions = require("./functions/function");
 const mongoose = require("mongoose");
@@ -36,7 +40,7 @@ bot.setMyCommands([{ command: "/start", description: "Start" }]);
 bot.on("message", async (msg) => handleMessage(bot, msg));
 bot.on("callback_query", async (msg) => handleCallbackQuery(bot, msg));
 bot.onText(/\/start/, async (msg) => StartCommand(bot, msg));
-bot.onText(/\/test/, async (msg) => StartCommand(bot, msg));
+bot.onText(/\/Ro'yxatdan o'tish/, async (msg) => driverRegister(bot, msg));
 
 bot.on("web_app_data", async (msg) => {
   try {

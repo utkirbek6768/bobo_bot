@@ -2,11 +2,10 @@ const mongoose = require("mongoose");
 
 const DriverSchema = mongoose.Schema(
   {
-    where: { type: String },
-    whereto: { type: Boolean },
-    passengerscount: { type: String },
-    delivery: { type: Boolean },
-    description: { type: String },
+    userName: { type: String },
+    carNumber: { type: String },
+    cartype: { type: String },
+    active: { type: Boolean },
   },
   { timestamps: true }
 );

@@ -5,6 +5,8 @@ const { remove, start, openWebKeyboard } = require("../markups/markups");
 const { loadLanguageFile } = require("../functions/function.js");
 
 const localStorage = new LocalStorage("./scratch");
+const imageUrl =
+  "https://codecapsules.io/wp-content/uploads/2023/07/how-to-create-and-host-a-telegram-bot-on-code-capsules-768x768.png";
 
 const handleMessage = async (bot, msg) => {
   const chatId = msg.chat.id;
@@ -16,7 +18,15 @@ const handleMessage = async (bot, msg) => {
     if (msg.text && msg.text == "/start") {
       try {
         const chatId = msg.chat.id;
-        await bot.sendMessage(chatId, "Assalomu alaykum", openWebKeyboard);
+        const options = {
+          caption:
+            `Assalomu alaykum dispatcher botga xush kelibsiz` +
+            "\n\n" +
+            `Buyutma berish tugmasi orqali tez va oson buyurtma bering !` +
+            "\n\n" +
+            `Agar haydovchi bo'lsangiz Ro'yxatdan o'tish tugmasi orqali ro'xatdan o'ting!`,
+        };
+        await bot.sendPhoto(chatId, imageUrl, options);
       } catch (err) {
         console.log(err);
       }

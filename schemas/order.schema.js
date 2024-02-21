@@ -4,9 +4,10 @@ const OrderSchema = mongoose.Schema(
   {
     where: { type: String },
     whereto: { type: String },
-    passengerscount: { type: String },
+    passengersCount: { type: String },
     delivery: { type: Boolean },
     description: { type: String },
+    orderStatus: { type: String },
   },
   { timestamps: true }
 );

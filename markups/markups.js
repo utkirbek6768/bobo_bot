@@ -32,6 +32,11 @@ const openWebKeyboard = {
           },
         },
       ],
+      [
+        {
+          text: "Ro'yxatdan o'tish",
+        },
+      ],
     ],
   },
 };

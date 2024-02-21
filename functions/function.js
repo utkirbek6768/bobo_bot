@@ -23,20 +23,24 @@ const createOrder = async (bot, chatId, data) => {
       .save()
       .then(async (res) => {
         const resId = res._id.toString();
-        const { where, whereto, passengerscount, delivery, description } = res;
-
+        const { where, whereto, passengersCount, delivery, description } = res;
         const options = {
           caption:
+            `📩 Yangi buyrtma` +
             "\n\n" +
-            `${where}` +
+            `📍 Qayrerdan: ${
+              where == "fergana" ? "Farg'onadan" : "Toshkentdan"
+            }` +
             "\n\n" +
-            `-${whereto}` +
+            `📍 Qayerga: ${
+              whereto == "fergana" ? "Farg'onaga" : "Toshkentga"
+            }` +
             "\n\n" +
-            `-${passengerscount}` +
+            `🔢 Yo'lovchilar soni: ${passengersCount} ta` +
             "\n\n" +
-            `-${delivery}` +
+            `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
             "\n\n" +
-            `-${description}`,
+            `✒️ Izoh: ${description.length > 0 ? description : "Kiritilmagan"}`,
           reply_markup: JSON.stringify({
             inline_keyboard: [
               [
