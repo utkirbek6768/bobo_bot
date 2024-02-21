@@ -27,16 +27,10 @@ const openWebKeyboard = {
       [
         {
           text: "Buyurtma berish",
-          web_app: {
-            url: "https://relaxed-marzipan-a84f8e.netlify.app/",
-          },
+          url: "https://relaxed-marzipan-a84f8e.netlify.app/",
         },
       ],
-      [
-        {
-          text: "Ro'yxatdan o'tish",
-        },
-      ],
+      [{ text: "Ro'yxatdan o'tish" }],
     ],
   },
 };
@@ -48,9 +42,9 @@ const start = {
     inline_keyboard: [
       [
         {
-          text: "Open Web",
+          text: "Ro'yhatdan o'tish",
           callback_data: JSON.stringify({
-            command: "openweb",
+            command: "start",
             value: "sendSms",
           }),
         },
