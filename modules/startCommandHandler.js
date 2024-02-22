@@ -25,7 +25,7 @@ const driverRegister = async (bot, msg) => {
   try {
     const chatId = msg.chat.id;
     const langs = functions.loadLanguageFile("ru");
-    await bot.deleteMessage(chatId, msg.message_id);
+    await bot.sendMessage(chatId, "ishladim");
   } catch (error) {
     console.log(error);
   }

@@ -40,7 +40,7 @@ bot.setMyCommands([{ command: "/start", description: "Start" }]);
 bot.on("message", async (msg) => handleMessage(bot, msg));
 bot.on("callback_query", async (msg) => handleCallbackQuery(bot, msg));
 bot.onText(/\/start/, async (msg) => StartCommand(bot, msg));
-bot.onText(/\/Ro'yxatdan o'tish/, async (msg) => driverRegister(bot, msg));
+bot.onText(/\/Haydovchiman/, async (msg) => driverRegister(bot, msg));
 
 bot.on("web_app_data", async (msg) => {
   try {

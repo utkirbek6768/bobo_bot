@@ -27,10 +27,19 @@ const openWebKeyboard = {
       [
         {
           text: "Buyurtma berish",
-          url: "https://relaxed-marzipan-a84f8e.netlify.app/",
+          web_app: {
+            url: "https://bobomurodsite.netlify.app/",
+          },
         },
       ],
-      [{ text: "Ro'yxatdan o'tish" }],
+      [
+        {
+          text: "Ro'yxatdan o'tish",
+          web_app: {
+            url: "https://bobomurodsite.netlify.app/driver",
+          },
+        },
+      ],
     ],
   },
 };
