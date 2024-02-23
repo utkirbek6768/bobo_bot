@@ -13,6 +13,7 @@ const {
 const { handleCallbackQuery } = require("./modules/callbackQueryHandler");
 const functions = require("./functions/function");
 const mongoose = require("mongoose");
+const { log } = require("console");
 
 // Creating Express app
 const app = express();
@@ -46,9 +47,11 @@ bot.on("web_app_data", async (msg) => {
   try {
     if (msg.web_app_data && msg.web_app_data.data) {
       const data = JSON.parse(msg.web_app_data.data);
+      const button = JSON.parse(msg.web_app_data.button_text);
       const chatId = msg.chat.id;
       const fromId = msg.from.id;
-      if (data) {
+      console.log(data);
+      if (data && button == "Buyurtma berish") {
         console.log(msg);
         functions.createOrder(bot, chatId, data);
       }
