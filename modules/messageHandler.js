@@ -2,7 +2,7 @@ require("dotenv").config();
 const { LocalStorage } = require("node-localstorage");
 // const functions = require("../my_function/function.js");
 const { remove, start, openWebKeyboard } = require("../markups/markups");
-const { loadLanguageFile } = require("../functions/function.js");
+const functions = require("../functions/function");
 
 const localStorage = new LocalStorage("./scratch");
 const imageUrl =
