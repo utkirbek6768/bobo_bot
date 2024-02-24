@@ -18,7 +18,7 @@ const remove = {
     remove_keyboard: true,
   },
 };
-
+const url = "https://bobomurodsite.netlify.app/";
 const openWebKeyboard = {
   reply_markup: {
     resize_keyboard: true,
