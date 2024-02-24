@@ -3,7 +3,8 @@ const { LocalStorage } = require("node-localstorage");
 // const functions = require("../my_function/function.js");
 const { remove, start, openWebKeyboard } = require("../markups/markups");
 const functions = require("../functions/function");
-
+const Order = require("../schemas/order.schema");
+const Driver = require("../schemas/driver.schema");
 const localStorage = new LocalStorage("./scratch");
 const imageUrl =
   "https://codecapsules.io/wp-content/uploads/2023/07/how-to-create-and-host-a-telegram-bot-on-code-capsules-768x768.png";
@@ -16,17 +17,16 @@ const handleMessage = async (bot, msg) => {
   //   const lang = loadLanguageFile(langCode);
   try {
     if (msg.text && msg.text == "/start") {
+      await Driver.findOne({ chatId: chatId })
+        .then((res) => {
+          if (res.carNumber) {
+          }
+          console.log("bu response", res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
       try {
-        const chatId = msg.chat.id;
-        // const options = {
-        //   caption:
-        //     `Assalomu alaykum dispatcher botga xush kelibsiz` +
-        //     "\n\n" +
-        //     `Buyutma berish tugmasi orqali tez va oson buyurtma bering !` +
-        //     "\n\n" +
-        //     `Agar haydovchi bo'lsangiz Ro'yxatdan o'tish tugmasi orqali ro'xatdan o'ting!`,
-        // };
-        // await bot.sendPhoto(chatId, imageUrl, options);
         await bot.sendMessage(
           chatId,
           `Assalomu alaykum dispatcher botga xush kelibsiz` +
@@ -44,7 +44,6 @@ const handleMessage = async (bot, msg) => {
       msg.text == "/start@tashkent_fergana_dispatcher_bot"
     ) {
       try {
-        const chatId = msg.chat.id;
         await bot.sendMessage(chatId, "Assalomu alaykum", openWebKeyboard);
       } catch (err) {
         console.log(err);
