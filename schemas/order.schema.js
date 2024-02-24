@@ -8,6 +8,8 @@ const OrderSchema = mongoose.Schema(
     delivery: { type: Boolean },
     description: { type: String },
     orderStatus: { type: String },
+    passengersChatId: { type: String },
+    driverChatId: { type: String },
   },
   { timestamps: true }
 );

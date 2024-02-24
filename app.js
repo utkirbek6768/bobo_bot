@@ -52,10 +52,10 @@ bot.on("web_app_data", async (msg) => {
       const fromId = msg.from.id;
       if (data && button == "Buyurtma berish") {
         console.log(msg);
-        functions.createOrder(bot, chatId, data, "passengers");
+        functions.createOrder(bot, chatId, data);
       } else if (data && button == "Ro'yxatdan o'tish") {
         console.log(msg);
-        functions.createOrder(bot, chatId, data, "drivers");
+        functions.createDriver(bot, chatId, data);
       }
     } else {
       console.error("web_app_data is missing in the message.");
