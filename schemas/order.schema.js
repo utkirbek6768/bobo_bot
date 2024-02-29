@@ -6,10 +6,12 @@ const OrderSchema = mongoose.Schema(
     whereto: { type: String },
     passengersCount: { type: String },
     delivery: { type: Boolean },
+    phoneNumber: { type: String },
     description: { type: String },
     orderStatus: { type: String },
     passengersChatId: { type: String },
     driverChatId: { type: String },
+    driverId: { type: String },
   },
   { timestamps: true }
 );

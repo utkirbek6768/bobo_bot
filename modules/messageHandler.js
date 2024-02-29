@@ -1,6 +1,5 @@
 require("dotenv").config();
 const { LocalStorage } = require("node-localstorage");
-// const functions = require("../my_function/function.js");
 const { remove, start, openWebKeyboard } = require("../markups/markups");
 const functions = require("../functions/function");
 const Order = require("../schemas/order.schema");
@@ -13,31 +12,27 @@ const handleMessage = async (bot, msg) => {
   const chatId = msg.chat.id;
   const telefonRegex = /^998(?:73|90|91|93|94|95|97|98|99)[1-9]\d{6}$/;
   //   const step = localStorage.getItem("step") || "start";
-  const langCode = localStorage.getItem("lang") || "uz";
-  //   const lang = loadLanguageFile(langCode);
   try {
     if (msg.text && msg.text == "/start") {
-      await Driver.findOne({ chatId: chatId })
-        .then((res) => {
-          if (res.carNumber) {
-          }
-          console.log("bu response", res);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
       try {
-        await bot.sendMessage(
-          chatId,
-          `Assalomu alaykum dispatcher botga xush kelibsiz` +
-            "\n\n" +
-            `Buyutma berish tugmasi orqali tez va oson buyurtma bering !` +
-            "\n\n" +
-            `Agar haydovchi bo'lsangiz Ro'yxatdan o'tish tugmasi orqali ro'xatdan o'ting!`,
-          openWebKeyboard
-        );
-      } catch (err) {
-        console.log(err);
+        const res = await Driver.findOne({ chatId: chatId });
+        if (res) {
+          const driverId = res._id.toString();
+          if (res.carNumber && !res.shift) {
+            await functions.sendStartShiftMessage(
+              bot,
+              chatId,
+              res.userName,
+              driverId
+            );
+          } else if (res.carNumber && res.shift) {
+            await functions.sendStopShiftMessage(bot, chatId, driverId);
+          } else if (res.length <= 0) {
+            await functions.sendStopShiftMessage(bot, chatId, driverId);
+          }
+        }
+      } catch (error) {
+        console.error("Error handling /start command:", error);
       }
     } else if (
       msg.text &&
@@ -49,7 +44,7 @@ const handleMessage = async (bot, msg) => {
         console.log(err);
       }
     } else {
-      //   console.log("botga message keldi", msg);
+      console.log("botga message keldi", msg);
     }
   } catch (error) {
     console.log(error);

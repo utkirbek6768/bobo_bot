@@ -3,15 +3,105 @@ const https = require("https");
 const path = require("path");
 const Order = require("../schemas/order.schema");
 const Driver = require("../schemas/driver.schema");
-const loadLanguageFile = (language) => {
-  //   const filePath = `./i18n/${language}.json`;
-  //   try {
-  //     const data = fs.readFileSync(filePath, "utf8");
-  //     return JSON.parse(data);
-  //   } catch (error) {
-  //     console.error(`Error loading language file for ${language}:`, error);
-  //     return {};
-  //   }
+const Passenger = require("../schemas/passenger.schema");
+
+const sendWelcomeMessage = async (bot, chatId) => {
+  try {
+    await bot.sendMessage(
+      chatId,
+      `Assalomu alaykum dispatcher botga xush kelibsiz` +
+        "\n\n" +
+        `Buyutma berish tugmasi orqali tez va oson buyurtma bering !` +
+        "\n\n" +
+        `Agar haydovchi bo'lsangiz Ro'yxatdan o'tish tugmasi orqali ro'xatdan o'ting!`,
+      openWebKeyboard
+    );
+  } catch (err) {
+    console.error("Error sending welcome message:", err);
+  }
+};
+
+const sendStartShiftMessage = async (bot, chatId, userName, driverId) => {
+  const startShift = "start";
+  await bot.sendMessage(
+    chatId,
+    `Assalomu alaykum ${userName} xush kelibsiz` +
+      "\n\n" +
+      `Smanani boshlaymizmi ?`,
+    {
+      reply_markup: JSON.stringify({
+        inline_keyboard: [
+          [
+            {
+              text: "Smanani boshlash",
+              callback_data: JSON.stringify({
+                com: startShift,
+                id: driverId,
+              }),
+            },
+          ],
+        ],
+      }),
+    }
+  );
+};
+
+const sendStopShiftMessage = async (bot, chatId, driverId) => {
+  const res = await Driver.findOne({ _id: driverId });
+  console.log(res);
+
+  const stopShift = "stop";
+  const outQueue = "out";
+  await bot.sendMessage(
+    chatId,
+    `${res.userName} siz ${
+      res.userName != null ? res.queueIndex : "0"
+    } bo'lib ${res.where === "fer" ? "Farg'onaga" : "Toshkentga"} navbatdasiz`,
+    {
+      reply_markup: JSON.stringify({
+        inline_keyboard: [
+          [
+            {
+              text: "Smanani to'xtatish",
+              callback_data: JSON.stringify({
+                com: stopShift,
+                id: driverId,
+              }),
+            },
+          ],
+        ],
+      }),
+    }
+  );
+};
+
+const changeRegion = async (bot, chatId, driverId) => {
+  await bot.sendMessage(chatId, "Qaysi hududan buyurtma olishni tanlang", {
+    reply_markup: JSON.stringify({
+      inline_keyboard: [
+        [
+          {
+            text: "Farg'onaga",
+            callback_data: JSON.stringify({
+              com: "region",
+              reg: "fer",
+              id: driverId,
+            }),
+          },
+        ],
+        [
+          {
+            text: "Toshkentdan",
+            callback_data: JSON.stringify({
+              com: "region",
+              reg: "tosh",
+              id: driverId,
+            }),
+          },
+        ],
+      ],
+    }),
+  });
 };
 
 const createOrder = async (bot, chatId, data) => {
@@ -27,6 +117,7 @@ const createOrder = async (bot, chatId, data) => {
       orderStatus: data.orderStatus,
       passengersChatId: chatId,
       driverChatId: "",
+      driverId: "",
     });
 
     await createOrder
@@ -84,6 +175,20 @@ const createOrder = async (bot, chatId, data) => {
   }
 };
 
+const updateOrder = async (bot, driverId, orderId, item, value) => {
+  try {
+    const updateFields = { [item]: value };
+    const res = await Order.findOneAndUpdate(
+      { _id: orderId },
+      { $set: updateFields },
+      { new: true }
+    );
+    console.log(res);
+  } catch (error) {
+    console.error("Error updating order:", error);
+  }
+};
+
 const createDriver = async (bot, chatId, data) => {
   try {
     await Driver.deleteMany({ chatId: chatId });
@@ -96,6 +201,9 @@ const createDriver = async (bot, chatId, data) => {
       carType: data.carType,
       where: data.where,
       tariff: data.tariff,
+      shift: data.shift,
+      queue: data.queue,
+      queueIndex: data.queueIndex,
       active: data.active,
       chatId: chatId,
     });
@@ -122,7 +230,7 @@ const createDriver = async (bot, chatId, data) => {
             {
               text: "Smenani boshlash",
               callback_data: JSON.stringify({
-                com: "startSmena",
+                com: "startShift",
                 id: resId,
               }),
             },
@@ -136,26 +244,46 @@ const createDriver = async (bot, chatId, data) => {
     console.log(error);
   }
 };
-const updateOrder = async (bot, driverId, orderId, item, value) => {
+
+const updateDriver = async (
+  bot,
+  driverId,
+  item1,
+  value1,
+  item2,
+  value2,
+  item3,
+  value3
+) => {
   try {
-    const updateFields = { [item]: value };
-    const res = await Order.findOneAndUpdate(
-      { _id: orderId },
+    const updateFields = { [item1]: value1, [item2]: value2, [item3]: value3 };
+    const res = await Driver.findOneAndUpdate(
+      { _id: driverId },
       { $set: updateFields },
       { new: true }
     );
-    console.log(res);
+    return res;
   } catch (error) {
     console.error("Error updating order:", error);
   }
 };
 
-const updateDriver = () => {};
+const createPassenger = () => {
+  const createPassenger = new Passenger({
+    userName: "",
+    phoneNumber: "",
+    chatId: "",
+  });
+};
 
 module.exports = {
-  loadLanguageFile,
   createOrder,
   createDriver,
   updateOrder,
   updateDriver,
+  createPassenger,
+  sendStartShiftMessage,
+  sendStopShiftMessage,
+  sendWelcomeMessage,
+  changeRegion,
 };

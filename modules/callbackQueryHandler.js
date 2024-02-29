@@ -11,48 +11,71 @@ const handleCallbackQuery = async (bot, msg) => {
   const data = JSON.parse(msg.data);
   const chatId = msg.message.chat.id;
   try {
-    if (data.command === "startSmena") {
+    if (data.com === "start") {
       try {
         await bot.deleteMessage(chatId, msg.message.message_id);
-        updateOrder(bot, chatId, orderId, item, value);
-        await bot.sendMessage(
-          chatId,
-          "Qaysi hududan buyurtma olishni tanlang",
-          {
-            reply_markup: JSON.stringify({
-              inline_keyboard: [
-                [
-                  {
-                    text: "Toshkentdan ➡️ Farg'onaga",
-                    callback_data: JSON.stringify({
-                      com: "region",
-                      reg: "fergana",
-                      id: data.id,
-                    }),
-                  },
-                ],
-                [
-                  {
-                    text: "Farg'onaga ➡️ Toshkentdan",
-                    callback_data: JSON.stringify({
-                      com: "region",
-                      reg: "toshkent",
-                      id: data.id,
-                    }),
-                  },
-                ],
-              ],
-            }),
-          }
-        );
+        functions.changeRegion(bot, chatId, data.id);
       } catch (error) {
         console.log(error);
       }
-    } else if (data.command === "changeRegion") {
+    } else if (data.com === "region") {
       try {
         await bot.deleteMessage(chatId, msg.message.message_id);
+        functions
+          .updateDriver(
+            bot,
+            data.id,
+            "shift",
+            true,
+            "queue",
+            true,
+            "where",
+            data.reg
+          )
+          .then(async (res) => {
+            const driverId = res._id.toString();
+            functions.sendStopShiftMessage(bot, chatId, driverId);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       } catch (error) {
         console.log(error);
+      }
+    } else if (data.com === "stop") {
+      try {
+        await bot.deleteMessage(chatId, msg.message.message_id);
+
+        const res = await functions.updateDriver(
+          bot,
+          data.id,
+          "shift",
+          false,
+          "queue",
+          false,
+          "where",
+          "all"
+        );
+        const driverId = res._id.toString();
+
+        const startShift = "start";
+        await bot.sendMessage(chatId, `Smanani boshlaymizmi ?`, {
+          reply_markup: JSON.stringify({
+            inline_keyboard: [
+              [
+                {
+                  text: "Smanani boshlash",
+                  callback_data: JSON.stringify({
+                    com: startShift,
+                    id: driverId,
+                  }),
+                },
+              ],
+            ],
+          }),
+        });
+      } catch (error) {
+        console.error("Error handling stop command:", error);
       }
     }
   } catch (error) {
