@@ -19,7 +19,7 @@ const remove = {
   },
 };
 const url = "https://bobomurodsite.netlify.app/";
-const openWebKeyboard = {
+const openWebKeyboardPassengers = {
   reply_markup: {
     resize_keyboard: true,
     one_time_keyboard: true,
@@ -32,6 +32,15 @@ const openWebKeyboard = {
           },
         },
       ],
+    ],
+  },
+};
+
+const openWebKeyboardDriver = {
+  reply_markup: {
+    resize_keyboard: true,
+    one_time_keyboard: true,
+    keyboard: [
       [
         {
           text: "Ro'yxatdan o'tish",
@@ -65,5 +74,6 @@ const start = {
 module.exports = {
   start,
   remove,
-  openWebKeyboard,
+  openWebKeyboardPassengers,
+  openWebKeyboardDriver,
 };

@@ -13,16 +13,11 @@ const {
 const { handleCallbackQuery } = require("./modules/callbackQueryHandler");
 const functions = require("./functions/function");
 const mongoose = require("mongoose");
-const { log } = require("console");
 
-// Creating Express app
 const app = express();
 
-// Using body-parser middleware
 app.use(bodyParser.json());
 
-// Setting up Telegram bot
-// const TelegramBotToken = process.env.BOT_TOKEN;
 const TelegramBotToken = "6302856184:AAFr7Wan3KQJlg0d3DLiCZZ6keAuT6zZU98";
 const bot = new TelegramBot(TelegramBotToken, { polling: true });
 
@@ -35,9 +30,12 @@ mongoose
     console.log("DB connection error: ");
   });
 
-bot.setMyCommands([{ command: "/start", description: "Start" }]);
+// bot.setMyCommands([{ command: "/start", description: "Start" }]);
+bot.setMyCommands([
+  { command: "/start", description: "Start" },
+  { command: "/register", description: "Registratsiya" },
+]);
 
-// Handling messages, callback queries, and commands
 bot.on("message", async (msg) => handleMessage(bot, msg));
 bot.on("callback_query", async (msg) => handleCallbackQuery(bot, msg));
 bot.onText(/\/start/, async (msg) => StartCommand(bot, msg));

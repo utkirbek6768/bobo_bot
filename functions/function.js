@@ -3,7 +3,14 @@ const https = require("https");
 const path = require("path");
 const Order = require("../schemas/order.schema");
 const Driver = require("../schemas/driver.schema");
+const QueueSchema = require("../schemas/queue.schema");
 const Passenger = require("../schemas/passenger.schema");
+const {
+  remove,
+  start,
+  openWebKeyboardPassengers,
+  openWebKeyboardDriver,
+} = require("../markups/markups");
 
 const sendWelcomeMessage = async (bot, chatId) => {
   try {
@@ -13,8 +20,8 @@ const sendWelcomeMessage = async (bot, chatId) => {
         "\n\n" +
         `Buyutma berish tugmasi orqali tez va oson buyurtma bering !` +
         "\n\n" +
-        `Agar haydovchi bo'lsangiz Ro'yxatdan o'tish tugmasi orqali ro'xatdan o'ting!`,
-      openWebKeyboard
+        `Agar haydovchi bo'lsangiz Menu dagi Registratsiya tugmasi orqali ro'xatdan o'ting!`,
+      openWebKeyboardPassengers
     );
   } catch (err) {
     console.error("Error sending welcome message:", err);
@@ -84,7 +91,7 @@ const changeRegion = async (bot, chatId, driverId) => {
             text: "Farg'onaga",
             callback_data: JSON.stringify({
               com: "region",
-              reg: "fer",
+              reg: "fergana",
               id: driverId,
             }),
           },
@@ -94,7 +101,7 @@ const changeRegion = async (bot, chatId, driverId) => {
             text: "Toshkentdan",
             callback_data: JSON.stringify({
               com: "region",
-              reg: "tosh",
+              reg: "toshkent",
               id: driverId,
             }),
           },
@@ -106,6 +113,7 @@ const changeRegion = async (bot, chatId, driverId) => {
 
 const createOrder = async (bot, chatId, data) => {
   try {
+    const cleanPhone = data.phoneNumber.replace(/[\s\+]/g, "");
     const imageUrl =
       "https://codecapsules.io/wp-content/uploads/2023/07/how-to-create-and-host-a-telegram-bot-on-code-capsules-768x768.png";
     const createOrder = new Order({
@@ -115,6 +123,7 @@ const createOrder = async (bot, chatId, data) => {
       delivery: data.delivery,
       description: data.description,
       orderStatus: data.orderStatus,
+      phoneNumber: cleanPhone,
       passengersChatId: chatId,
       driverChatId: "",
       driverId: "",
@@ -124,7 +133,15 @@ const createOrder = async (bot, chatId, data) => {
       .save()
       .then(async (res) => {
         const resId = res._id.toString();
-        const { where, whereto, passengersCount, delivery, description } = res;
+        const newOrder = "nor";
+        const {
+          where,
+          whereto,
+          passengersCount,
+          delivery,
+          description,
+          phoneNumber,
+        } = res;
         const options = {
           caption:
             `📩 Yangi buyrtma` +
@@ -141,23 +158,40 @@ const createOrder = async (bot, chatId, data) => {
             "\n\n" +
             `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
             "\n\n" +
-            `✒️ Izoh: ${description.length > 0 ? description : "Kiritilmagan"}`,
+            `✒️ Izoh: ${
+              description.length > 0 ? description : "Kiritilmagan"
+            }` +
+            "\n\n" +
+            `☎️ Telefon: +${phoneNumber}`,
           reply_markup: JSON.stringify({
             inline_keyboard: [
               [
                 {
                   text: "Buyurtmani oldim",
                   callback_data: JSON.stringify({
-                    com: "newOrder",
-                    ok: true,
+                    com: newOrder,
+                    val: "accept",
                     id: resId,
                   }),
                 },
+              ],
+              [
                 {
                   text: "O'tkazib yuborish",
                   callback_data: JSON.stringify({
-                    com: "newOrder",
-                    ok: false,
+                    com: newOrder,
+                    val: "next",
+                    id: resId,
+                  }),
+                },
+              ],
+
+              [
+                {
+                  text: "Buyurtmada xatolik",
+                  callback_data: JSON.stringify({
+                    com: newOrder,
+                    val: "err",
                     id: resId,
                   }),
                 },
@@ -165,7 +199,19 @@ const createOrder = async (bot, chatId, data) => {
             ],
           }),
         };
-        await bot.sendPhoto(chatId, imageUrl, options);
+        Driver.find({ shift: true, queue: true, where: where })
+          .sort({ updatedAt: 1 })
+          .then(async (res) => {
+            if (res.length > 0) {
+              const driver = res[0];
+              await bot.sendPhoto(driver.chatId, imageUrl, options);
+            } else {
+              await bot.sendMessage(
+                chatId,
+                "Ayni vaqtda bo'sh haydovchi mavjud emas. Haydovchilar buyurtmangizni olishibilan sizga xabar beraniz"
+              );
+            }
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -230,7 +276,7 @@ const createDriver = async (bot, chatId, data) => {
             {
               text: "Smenani boshlash",
               callback_data: JSON.stringify({
-                com: "startShift",
+                com: "start",
                 id: resId,
               }),
             },

@@ -77,6 +77,14 @@ const handleCallbackQuery = async (bot, msg) => {
       } catch (error) {
         console.error("Error handling stop command:", error);
       }
+    } else if (data.com === "nor") {
+      if (data.val == "accept") {
+        await bot.sendMessage(chatId, data.id);
+      } else if (data.val == "next") {
+        await bot.sendMessage(chatId, data.id);
+      } else if (data.val == "err") {
+        await bot.sendMessage(chatId, data.id);
+      }
     }
   } catch (error) {
     console.error(error);

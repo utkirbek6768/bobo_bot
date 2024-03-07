@@ -1,6 +1,11 @@
 require("dotenv").config();
 const { LocalStorage } = require("node-localstorage");
-const { remove, start, openWebKeyboard } = require("../markups/markups");
+const {
+  remove,
+  start,
+  openWebKeyboardPassengers,
+  openWebKeyboardDriver,
+} = require("../markups/markups");
 const functions = require("../functions/function");
 const Order = require("../schemas/order.schema");
 const Driver = require("../schemas/driver.schema");
@@ -10,10 +15,11 @@ const imageUrl =
 
 const handleMessage = async (bot, msg) => {
   const chatId = msg.chat.id;
+  const text = msg.text;
   const telefonRegex = /^998(?:73|90|91|93|94|95|97|98|99)[1-9]\d{6}$/;
   //   const step = localStorage.getItem("step") || "start";
   try {
-    if (msg.text && msg.text == "/start") {
+    if (msg.text == "/start") {
       try {
         const res = await Driver.findOne({ chatId: chatId });
         if (res) {
@@ -30,16 +36,29 @@ const handleMessage = async (bot, msg) => {
           } else if (res.length <= 0) {
             await functions.sendStopShiftMessage(bot, chatId, driverId);
           }
+        } else {
+          functions.sendWelcomeMessage(bot, chatId);
         }
       } catch (error) {
         console.error("Error handling /start command:", error);
       }
-    } else if (
-      msg.text &&
-      msg.text == "/start@tashkent_fergana_dispatcher_bot"
-    ) {
+    } else if (msg.text == "/start@tashkent_fergana_dispatcher_bot") {
       try {
-        await bot.sendMessage(chatId, "Assalomu alaykum", openWebKeyboard);
+        // await bot.sendMessage(
+        //   chatId,
+        //   "Assalomu alaykum",
+        //   openWebKeyboardPassengers
+        // );
+      } catch (err) {
+        console.log(err);
+      }
+    } else if (msg.text == "/register") {
+      try {
+        await bot.sendMessage(
+          chatId,
+          "Assalomu alaykum hurmatli haydovchi biz siz bilan hamkorlik qilishdan mamnunmiz.\n\nIltimos quyidagi tugma orqali ro'yxatdan o'ting",
+          openWebKeyboardDriver
+        );
       } catch (err) {
         console.log(err);
       }
