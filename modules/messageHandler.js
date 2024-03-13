@@ -25,12 +25,7 @@ const handleMessage = async (bot, msg) => {
         if (res) {
           const driverId = res._id.toString();
           if (res.carNumber && !res.shift) {
-            await functions.sendStartShiftMessage(
-              bot,
-              chatId,
-              res.userName,
-              driverId
-            );
+            await functions.sendStartShiftMessage(bot, chatId, res.userName);
           } else if (res.carNumber && res.shift) {
             await functions.sendStopShiftMessage(bot, chatId, driverId);
           } else if (res.length <= 0) {
@@ -63,7 +58,6 @@ const handleMessage = async (bot, msg) => {
         console.log(err);
       }
     } else {
-      console.log("botga message keldi", msg);
     }
   } catch (error) {
     console.log(error);

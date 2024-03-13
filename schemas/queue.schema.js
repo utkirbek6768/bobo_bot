@@ -2,8 +2,16 @@ const mongoose = require("mongoose");
 
 const QueueSchema = mongoose.Schema(
   {
-    fer: { type: Array },
-    tosh: { type: Array },
+    fer: [
+      {
+        chatId: { type: String },
+      },
+    ],
+    tosh: [
+      {
+        chatId: { type: String },
+      },
+    ],
   },
   { timestamps: true }
 );

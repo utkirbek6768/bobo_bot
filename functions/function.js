@@ -3,7 +3,7 @@ const https = require("https");
 const path = require("path");
 const Order = require("../schemas/order.schema");
 const Driver = require("../schemas/driver.schema");
-const QueueSchema = require("../schemas/queue.schema");
+const Queue = require("../schemas/queue.schema");
 const Passenger = require("../schemas/passenger.schema");
 const {
   remove,
@@ -11,6 +11,8 @@ const {
   openWebKeyboardPassengers,
   openWebKeyboardDriver,
 } = require("../markups/markups");
+
+const kanalId = "-1001967326386";
 
 const sendWelcomeMessage = async (bot, chatId) => {
   try {
@@ -28,22 +30,22 @@ const sendWelcomeMessage = async (bot, chatId) => {
   }
 };
 
-const sendStartShiftMessage = async (bot, chatId, userName, driverId) => {
+const sendStartShiftMessage = async (bot, chatId, userName) => {
   const startShift = "start";
   await bot.sendMessage(
     chatId,
     `Assalomu alaykum ${userName} xush kelibsiz` +
       "\n\n" +
-      `Smanani boshlaymizmi ?`,
+      `Ishni boshlaymizmi ?`,
     {
       reply_markup: JSON.stringify({
         inline_keyboard: [
           [
             {
-              text: "Smanani boshlash",
+              text: "Navbatga qo'yish",
               callback_data: JSON.stringify({
                 com: startShift,
-                id: driverId,
+                id: chatId,
               }),
             },
           ],
@@ -53,12 +55,9 @@ const sendStartShiftMessage = async (bot, chatId, userName, driverId) => {
   );
 };
 
-const sendStopShiftMessage = async (bot, chatId, driverId) => {
-  const res = await Driver.findOne({ _id: driverId });
-  console.log(res);
-
+const sendStopShiftMessage = async (bot, chatId) => {
+  const res = await Driver.findOne({ chatId: chatId });
   const stopShift = "stop";
-  const outQueue = "out";
   await bot.sendMessage(
     chatId,
     `${res.userName} siz ${
@@ -69,10 +68,10 @@ const sendStopShiftMessage = async (bot, chatId, driverId) => {
         inline_keyboard: [
           [
             {
-              text: "Smanani to'xtatish",
+              text: "Navbatdan chiqish",
               callback_data: JSON.stringify({
                 com: stopShift,
-                id: driverId,
+                id: chatId,
               }),
             },
           ],
@@ -82,7 +81,7 @@ const sendStopShiftMessage = async (bot, chatId, driverId) => {
   );
 };
 
-const changeRegion = async (bot, chatId, driverId) => {
+const changeRegion = async (bot, chatId) => {
   await bot.sendMessage(chatId, "Qaysi hududan buyurtma olishni tanlang", {
     reply_markup: JSON.stringify({
       inline_keyboard: [
@@ -91,8 +90,8 @@ const changeRegion = async (bot, chatId, driverId) => {
             text: "Farg'onaga",
             callback_data: JSON.stringify({
               com: "region",
-              reg: "fergana",
-              id: driverId,
+              reg: "fer",
+              id: chatId,
             }),
           },
         ],
@@ -101,8 +100,8 @@ const changeRegion = async (bot, chatId, driverId) => {
             text: "Toshkentdan",
             callback_data: JSON.stringify({
               com: "region",
-              reg: "toshkent",
-              id: driverId,
+              reg: "tosh",
+              id: chatId,
             }),
           },
         ],
@@ -146,13 +145,9 @@ const createOrder = async (bot, chatId, data) => {
           caption:
             `📩 Yangi buyrtma` +
             "\n\n" +
-            `📍 Qayrerdan: ${
-              where == "fergana" ? "Farg'onadan" : "Toshkentdan"
-            }` +
+            `📍 Qayrerdan: ${where == "fer" ? "Farg'onadan" : "Toshkentdan"}` +
             "\n\n" +
-            `📍 Qayerga: ${
-              whereto == "fergana" ? "Farg'onaga" : "Toshkentga"
-            }` +
+            `📍 Qayerga: ${whereto == "fer" ? "Farg'onaga" : "Toshkentga"}` +
             "\n\n" +
             `🔢 Yo'lovchilar soni: ${passengersCount} ta` +
             "\n\n" +
@@ -185,7 +180,6 @@ const createOrder = async (bot, chatId, data) => {
                   }),
                 },
               ],
-
               [
                 {
                   text: "Buyurtmada xatolik",
@@ -199,22 +193,34 @@ const createOrder = async (bot, chatId, data) => {
             ],
           }),
         };
-        Driver.find({ shift: true, queue: true, where: where })
-          .sort({ updatedAt: 1 })
-          .then(async (res) => {
-            if (res.length > 0) {
-              const driver = res[0];
-              await bot.sendPhoto(driver.chatId, imageUrl, options);
-            } else {
-              await bot.sendMessage(
-                chatId,
-                "Ayni vaqtda bo'sh haydovchi mavjud emas. Haydovchilar buyurtmangizni olishibilan sizga xabar beraniz"
-              );
+        // const where = "fer";
+        const queue = await Queue.findOne({});
+
+        if (queue[where].length > 0) {
+          try {
+            const driverChatId = queue[where][0].chatId;
+            const driver = await Driver.findOne({ chatId: driverChatId });
+            if (driver) {
+              await bot.sendPhoto(queue[where][0].chatId, imageUrl, options);
             }
-          });
+            await bot.sendMessage(
+              chatId,
+              "Buyurtmangiz uchun raxmat, tez orada haydovchilarimiz sizbilan bog'lanishadi."
+            );
+          } catch (error) {
+            console.log(error);
+          }
+        } else {
+          await bot.sendMessage(
+            chatId,
+            "Buyurtmangiz uchun raxmat, tez orada haydovchilarimiz sizbilan bog'lanishadi."
+          );
+
+          await bot.sendPhoto(kanalId, imageUrl, options);
+        }
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.message);
       });
   } catch (error) {
     console.log(error);
@@ -229,7 +235,6 @@ const updateOrder = async (bot, driverId, orderId, item, value) => {
       { $set: updateFields },
       { new: true }
     );
-    console.log(res);
   } catch (error) {
     console.error("Error updating order:", error);
   }
@@ -292,35 +297,74 @@ const createDriver = async (bot, chatId, data) => {
 };
 
 const updateDriver = async (
-  bot,
-  driverId,
+  chatId,
   item1,
   value1,
   item2,
   value2,
   item3,
-  value3
+  region
 ) => {
   try {
-    const updateFields = { [item1]: value1, [item2]: value2, [item3]: value3 };
+    const updateFields = { [item1]: value1, [item2]: value2, [item3]: region };
     const res = await Driver.findOneAndUpdate(
-      { _id: driverId },
+      { chatId: chatId },
       { $set: updateFields },
       { new: true }
     );
-    return res;
+    if (res) {
+      try {
+        const queueUpdate = await Queue.findOneAndUpdate(
+          {},
+          { $pull: { [region]: { chatId: chatId } } },
+          { new: true }
+        );
+        if (queueUpdate) {
+          const updatedQueue = await Queue.findOneAndUpdate(
+            {},
+            { $push: { [region]: { chatId: chatId } } },
+            { new: true }
+          );
+          if (updatedQueue) {
+            // sendStopShiftMessage(bot, chatId);
+            console.log("ishladim", updatedQueue);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+      return res;
+    }
   } catch (error) {
     console.error("Error updating order:", error);
   }
 };
 
+const queueOut = async (region, chatId) => {
+  try {
+    const queueUpdate = await Queue.findOneAndUpdate(
+      {},
+      { $pull: { [region]: { chatId: chatId } } },
+      { new: true }
+    );
+    return queueUpdate;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const createPassenger = () => {
-  const createPassenger = new Passenger({
+  const passenger = new Passenger({
     userName: "",
     phoneNumber: "",
     chatId: "",
   });
 };
+
+// const queueDelete = async () => {
+//   await Queue.updateMany({}, { $pull: { tosh: { chatId: "test" } } });
+// };
+// queueDelete();
 
 module.exports = {
   createOrder,
@@ -332,4 +376,5 @@ module.exports = {
   sendStopShiftMessage,
   sendWelcomeMessage,
   changeRegion,
+  queueOut,
 };

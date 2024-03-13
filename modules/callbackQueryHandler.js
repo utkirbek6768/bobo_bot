@@ -1,6 +1,7 @@
 const fs = require("fs");
 const https = require("https");
 const path = require("path");
+const Driver = require("../schemas/driver.schema");
 require("dotenv").config();
 // const apiModule = require("../my_axios.js");
 // const api = apiModule.instance;
@@ -14,7 +15,7 @@ const handleCallbackQuery = async (bot, msg) => {
     if (data.com === "start") {
       try {
         await bot.deleteMessage(chatId, msg.message.message_id);
-        functions.changeRegion(bot, chatId, data.id);
+        functions.changeRegion(bot, chatId);
       } catch (error) {
         console.log(error);
       }
@@ -23,7 +24,6 @@ const handleCallbackQuery = async (bot, msg) => {
         await bot.deleteMessage(chatId, msg.message.message_id);
         functions
           .updateDriver(
-            bot,
             data.id,
             "shift",
             true,
@@ -33,8 +33,7 @@ const handleCallbackQuery = async (bot, msg) => {
             data.reg
           )
           .then(async (res) => {
-            const driverId = res._id.toString();
-            functions.sendStopShiftMessage(bot, chatId, driverId);
+            functions.sendStopShiftMessage(bot, chatId);
           })
           .catch((err) => {
             console.log(err);
@@ -45,9 +44,15 @@ const handleCallbackQuery = async (bot, msg) => {
     } else if (data.com === "stop") {
       try {
         await bot.deleteMessage(chatId, msg.message.message_id);
+        Driver.findOne({ chatId: data.id })
+          .then((result) => {
+            functions.queueOut(result.where, data.id);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
 
-        const res = await functions.updateDriver(
-          bot,
+        functions.updateDriver(
           data.id,
           "shift",
           false,
@@ -56,18 +61,16 @@ const handleCallbackQuery = async (bot, msg) => {
           "where",
           "all"
         );
-        const driverId = res._id.toString();
-
         const startShift = "start";
         await bot.sendMessage(chatId, `Smanani boshlaymizmi ?`, {
           reply_markup: JSON.stringify({
             inline_keyboard: [
               [
                 {
-                  text: "Smanani boshlash",
+                  text: "Navbatga qo'yish",
                   callback_data: JSON.stringify({
                     com: startShift,
-                    id: driverId,
+                    id: data.id,
                   }),
                 },
               ],

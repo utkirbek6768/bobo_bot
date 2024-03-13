@@ -2,7 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const http = require("http");
 const TelegramBot = require("node-telegram-bot-api");
-
 // Importing custom modules
 const { handleMessage } = require("./modules/messageHandler");
 const {
@@ -35,12 +34,33 @@ bot.setMyCommands([
   { command: "/start", description: "Start" },
   { command: "/register", description: "Registratsiya" },
 ]);
+const Queue = require("./schemas/queue.schema.js");
+
+const createQueue = async () => {
+  try {
+    const queue = new Queue({
+      fer: [
+        {
+          chatId: "test",
+        },
+      ],
+      tosh: [
+        {
+          chatId: "test",
+        },
+      ],
+    });
+    await queue.save();
+  } catch (error) {
+    console.log(error);
+  }
+};
+// createQueue();
 
 bot.on("message", async (msg) => handleMessage(bot, msg));
 bot.on("callback_query", async (msg) => handleCallbackQuery(bot, msg));
 bot.onText(/\/start/, async (msg) => StartCommand(bot, msg));
 bot.onText(/\/Haydovchiman/, async (msg) => driverRegister(bot, msg));
-
 bot.on("web_app_data", async (msg) => {
   try {
     if (msg.web_app_data && msg.web_app_data.data) {
@@ -49,10 +69,8 @@ bot.on("web_app_data", async (msg) => {
       const chatId = msg.chat.id;
       const fromId = msg.from.id;
       if (data && button == "Buyurtma berish") {
-        console.log(msg);
         functions.createOrder(bot, chatId, data);
       } else if (data && button == "Ro'yxatdan o'tish") {
-        console.log(msg);
         functions.createDriver(bot, chatId, data);
       }
     } else {
