@@ -29,6 +29,7 @@ const openWebKeyboardPassengers = {
           text: "Buyurtma berish",
           web_app: {
             url: "https://bobomurodsite.netlify.app/",
+            // url: "https://t.me/tashkent_fergana_dispatcher_bot",
           },
         },
       ],

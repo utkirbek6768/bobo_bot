@@ -1,12 +1,6 @@
-const fs = require("fs");
-const https = require("https");
-const path = require("path");
-const Driver = require("../schemas/driver.schema");
 require("dotenv").config();
-// const apiModule = require("../my_axios.js");
-// const api = apiModule.instance;
+const Driver = require("../schemas/driver.schema");
 const functions = require("../functions/function.js");
-// const { remove, start } = require("../markups/markups");
 
 const handleCallbackQuery = async (bot, msg) => {
   const data = JSON.parse(msg.data);
@@ -33,7 +27,8 @@ const handleCallbackQuery = async (bot, msg) => {
             data.reg
           )
           .then(async (res) => {
-            functions.sendStopShiftMessage(bot, chatId);
+            // console.log("updateDriver log", res);
+            functions.sendStopShiftMessage(bot, chatId, data.reg);
           })
           .catch((err) => {
             console.log(err);

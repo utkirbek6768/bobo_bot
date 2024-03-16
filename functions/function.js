@@ -55,30 +55,46 @@ const sendStartShiftMessage = async (bot, chatId, userName) => {
   );
 };
 
-const sendStopShiftMessage = async (bot, chatId) => {
-  const res = await Driver.findOne({ chatId: chatId });
-  const stopShift = "stop";
-  await bot.sendMessage(
-    chatId,
-    `${res.userName} siz ${
-      res.userName != null ? res.queueIndex : "0"
-    } bo'lib ${res.where === "fer" ? "Farg'onaga" : "Toshkentga"} navbatdasiz`,
-    {
-      reply_markup: JSON.stringify({
-        inline_keyboard: [
-          [
-            {
-              text: "Navbatdan chiqish",
-              callback_data: JSON.stringify({
-                com: stopShift,
-                id: chatId,
-              }),
-            },
-          ],
-        ],
-      }),
-    }
-  );
+const sendStopShiftMessage = async (bot, chatId, region) => {
+  try {
+    const res = await Driver.findOne({ chatId: chatId });
+    await Queue.findOne({}).then(async (queue) => {
+      if (queue[region].length >= 0) {
+        const index = queue[region].findIndex((item) => {
+          //   console.log("queue[region] log ==>", item);
+          if (item) {
+            item?.chatId === chatId;
+          }
+        });
+        const stopShift = "stop";
+        await bot.sendMessage(
+          chatId,
+          `${res.userName} siz ${index + 2} bo'lib ${
+            res.where === "fer" ? "Farg'onaga" : "Toshkentga"
+          } navbatdasiz`,
+          {
+            reply_markup: JSON.stringify({
+              inline_keyboard: [
+                [
+                  {
+                    text: "Navbatdan chiqish",
+                    callback_data: JSON.stringify({
+                      com: stopShift,
+                      id: chatId,
+                    }),
+                  },
+                ],
+              ],
+            }),
+          }
+        );
+      } else {
+        console.log("Queue not found");
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const changeRegion = async (bot, chatId) => {
@@ -313,30 +329,35 @@ const updateDriver = async (
       { new: true }
     );
     if (res) {
-      try {
+      const queueRemove = await Queue.findOneAndUpdate(
+        {},
+        {
+          $pull: { [region]: { chatId: chatId } },
+        },
+        { new: true }
+      );
+      if (queueRemove) {
         const queueUpdate = await Queue.findOneAndUpdate(
           {},
-          { $pull: { [region]: { chatId: chatId } } },
+          {
+            $push: { [region]: { chatId: chatId } },
+          },
           { new: true }
         );
         if (queueUpdate) {
-          const updatedQueue = await Queue.findOneAndUpdate(
-            {},
-            { $push: { [region]: { chatId: chatId } } },
-            { new: true }
-          );
-          if (updatedQueue) {
-            // sendStopShiftMessage(bot, chatId);
-            console.log("ishladim", updatedQueue);
-          }
+          //   console.log("BU queueUpdate ==>", queueUpdate);
+        } else {
+          console.log("Error updating queue");
+          return null;
         }
-      } catch (error) {
-        console.log(error);
       }
-      return res;
+    } else {
+      console.log("Error updating driver");
+      return null;
     }
   } catch (error) {
     console.error("Error updating order:", error);
+    return null;
   }
 };
 

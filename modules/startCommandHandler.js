@@ -23,9 +23,9 @@ const StartCommand = async (bot, msg) => {
 
 const driverRegister = async (bot, msg) => {
   try {
-    const chatId = msg.chat.id;
-    const langs = functions.loadLanguageFile("ru");
-    await bot.sendMessage(chatId, "ishladim");
+    // const chatId = msg.chat.id;
+    // const langs = functions.loadLanguageFile("ru");
+    // await bot.sendMessage(chatId, "ishladim");
   } catch (error) {
     console.log(error);
   }
