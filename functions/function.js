@@ -10,6 +10,7 @@ const {
   start,
   openWebKeyboardPassengers,
   openWebKeyboardDriver,
+  openWebKeyboardDriverPost,
 } = require("../markups/markups");
 
 const kanalId = "-1001967326386";
@@ -57,43 +58,49 @@ const sendStartShiftMessage = async (bot, chatId, userName) => {
 
 const sendStopShiftMessage = async (bot, chatId, region) => {
   try {
-    const res = await Driver.findOne({ chatId: chatId });
-    await Queue.findOne({}).then(async (queue) => {
-      if (queue[region].length >= 0) {
-        const index = queue[region].findIndex((item) => {
-          //   console.log("queue[region] log ==>", item);
-          if (item) {
-            item?.chatId === chatId;
-          }
-        });
-        const stopShift = "stop";
-        await bot.sendMessage(
-          chatId,
-          `${res.userName} siz ${index + 2} bo'lib ${
-            res.where === "fer" ? "Farg'onaga" : "Toshkentga"
-          } navbatdasiz`,
-          {
-            reply_markup: JSON.stringify({
-              inline_keyboard: [
-                [
-                  {
-                    text: "Navbatdan chiqish",
-                    callback_data: JSON.stringify({
-                      com: stopShift,
-                      id: chatId,
-                    }),
-                  },
-                ],
-              ],
-            }),
-          }
-        );
-      } else {
-        console.log("Queue not found");
-      }
-    });
+    const res = await Driver.findOne({ chatId: chatId }).select(
+      "userName where"
+    );
+    const queue = await Queue.findOne({}, region);
+
+    if (!res) {
+      console.log("Driver not found with chat ID:", chatId);
+      return;
+    }
+
+    if (!queue || !queue[region]) {
+      console.log("Queue not found or empty for region:", region);
+      return;
+    }
+
+    const index = queue[region].findIndex(
+      (element) => element.chatId == chatId
+    );
+    if (index >= 0) {
+      const stopShift = "stop";
+      const location = res.where === "fer" ? "Farg'onada" : "Toshkentda";
+      const message = `${res.userName} siz ${
+        index + 1
+      } - bo'lib ${location} navbatdasiz.`;
+
+      await bot.sendMessage(chatId, message, {
+        reply_markup: JSON.stringify({
+          inline_keyboard: [
+            [
+              {
+                text: "Navbatdan chiqish",
+                callback_data: JSON.stringify({ com: stopShift, id: chatId }),
+              },
+            ],
+          ],
+          resize_keyboard: true,
+        }),
+      });
+    } else {
+      console.log("Chat ID not found in the queue for region:", region);
+    }
   } catch (error) {
-    console.log(error);
+    console.log("Error:", error);
   }
 };
 
@@ -148,7 +155,11 @@ const createOrder = async (bot, chatId, data) => {
       .save()
       .then(async (res) => {
         const resId = res._id.toString();
+
         const newOrder = "nor";
+        const next = "nxt";
+        const acceptance = "at";
+        const error = "er";
         const {
           where,
           whereto,
@@ -180,9 +191,10 @@ const createOrder = async (bot, chatId, data) => {
                 {
                   text: "Buyurtmani oldim",
                   callback_data: JSON.stringify({
-                    com: newOrder,
-                    val: "accept",
+                    cm: newOrder,
+                    vl: acceptance,
                     id: resId,
+                    ct: passengersCount,
                   }),
                 },
               ],
@@ -190,9 +202,9 @@ const createOrder = async (bot, chatId, data) => {
                 {
                   text: "O'tkazib yuborish",
                   callback_data: JSON.stringify({
-                    com: newOrder,
-                    val: "next",
-                    id: resId,
+                    cm: newOrder,
+                    vl: next,
+                    ct: passengersCount,
                   }),
                 },
               ],
@@ -200,16 +212,17 @@ const createOrder = async (bot, chatId, data) => {
                 {
                   text: "Buyurtmada xatolik",
                   callback_data: JSON.stringify({
-                    com: newOrder,
-                    val: "err",
+                    cm: newOrder,
+                    vl: error,
                     id: resId,
+                    ct: passengersCount,
                   }),
                 },
               ],
             ],
           }),
         };
-        // const where = "fer";
+
         const queue = await Queue.findOne({});
 
         if (queue[where].length > 0) {
@@ -266,18 +279,22 @@ const createDriver = async (bot, chatId, data) => {
       userName: data.userName,
       carNumber: data.carNumber,
       carType: data.carType,
-      where: data.where,
       tariff: data.tariff,
       shift: data.shift,
       queue: data.queue,
+      where: data.where,
       queueIndex: data.queueIndex,
       active: data.active,
       chatId: chatId,
+      order: {
+        id: [],
+        passengersCount: 0,
+      },
     });
 
     const res = await createDriver.save();
-    const resId = res._id.toString();
-    const { userName, carNumber, carType, active } = res;
+    const { _id, userName, carNumber, carType, active } = res;
+    const resId = _id.toString();
 
     const options = {
       caption:
@@ -307,6 +324,11 @@ const createDriver = async (bot, chatId, data) => {
     };
 
     await bot.sendPhoto(chatId, imageUrl, options);
+    await bot.sendMessage(
+      chatId,
+      'Kanalga elon berish uchun "Post atyorlash" tugmasida foydalaning',
+      openWebKeyboardDriverPost
+    );
   } catch (error) {
     console.log(error);
   }
@@ -386,6 +408,27 @@ const createPassenger = () => {
 //   await Queue.updateMany({}, { $pull: { tosh: { chatId: "test" } } });
 // };
 // queueDelete();
+const deleteOldOrders = async () => {
+  try {
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+    const result = await Order.deleteMany({ createdAt: { $lt: threeDaysAgo } });
+    console.log(`${result.deletedCount} orders deleted`);
+  } catch (error) {
+    console.error("Error deleting orders:", error);
+  }
+};
+// ========bu eski orderlani o'chirish uchun============
+const checkAndDeleteOrders = async () => {
+  const currentDate = new Date();
+  if (currentDate.getHours() === 0 && currentDate.getMinutes() === 0) {
+    await deleteOldOrders();
+  }
+};
+checkAndDeleteOrders();
+setInterval(checkAndDeleteOrders, 60 * 1000);
+// ========eski orderlani o'chirish tugadi============
 
 module.exports = {
   createOrder,

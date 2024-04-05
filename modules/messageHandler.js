@@ -5,6 +5,7 @@ const {
   start,
   openWebKeyboardPassengers,
   openWebKeyboardDriver,
+  openWebKeyboardDriverPost,
 } = require("../markups/markups");
 const functions = require("../functions/function");
 const Order = require("../schemas/order.schema");
@@ -18,13 +19,14 @@ const handleMessage = async (bot, msg) => {
   const chatId = msg.chat.id;
   const text = msg.text;
   const telefonRegex = /^998(?:73|90|91|93|94|95|97|98|99)[1-9]\d{6}$/;
+  const messageId = msg.message_id;
   //   const step = localStorage.getItem("step") || "start";
   try {
     if (msg.text == "/start") {
       try {
         const res = await Driver.findOne({ chatId: chatId });
         if (res) {
-          //   const driverId = res._id.toString();
+          // const driverId = res._id.toString();
           if (res.carNumber && !res.shift) {
             await functions.sendStartShiftMessage(bot, chatId, res.userName);
           } else if (res.carNumber && res.shift) {
@@ -50,6 +52,16 @@ const handleMessage = async (bot, msg) => {
           chatId,
           "Assalomu alaykum hurmatli haydovchi biz siz bilan hamkorlik qilishdan mamnunmiz.\n\nIltimos quyidagi tugma orqali ro'yxatdan o'ting",
           openWebKeyboardDriver
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    } else if (msg.text == "/createpost") {
+      try {
+        await bot.sendMessage(
+          chatId,
+          "Assalomu alaykum hurmatli haydovchi kanalga elon berish uchun oson  post tayorlashingiz mumkin .\n\nIltimos quyidagi tugma orqali boshlang",
+          remove
         );
       } catch (err) {
         console.log(err);

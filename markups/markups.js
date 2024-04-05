@@ -54,6 +54,23 @@ const openWebKeyboardDriver = {
   },
 };
 
+const openWebKeyboardDriverPost = {
+  reply_markup: {
+    resize_keyboard: true,
+    one_time_keyboard: true,
+    keyboard: [
+      [
+        {
+          text: "Post tayorlash",
+          web_app: {
+            url: "https://bobomurodsite.netlify.app/createpost",
+          },
+        },
+      ],
+    ],
+  },
+};
+
 // ---------------------------------------------------------------
 
 const start = {
@@ -77,4 +94,5 @@ module.exports = {
   remove,
   openWebKeyboardPassengers,
   openWebKeyboardDriver,
+  openWebKeyboardDriverPost,
 };

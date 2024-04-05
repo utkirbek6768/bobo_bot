@@ -33,6 +33,7 @@ mongoose
 bot.setMyCommands([
   { command: "/start", description: "Start" },
   { command: "/register", description: "Registratsiya" },
+  { command: "/createpost", description: "Kanalga elon berish" },
 ]);
 const Queue = require("./schemas/queue.schema.js");
 
@@ -72,6 +73,9 @@ bot.on("web_app_data", async (msg) => {
         functions.createOrder(bot, chatId, data);
       } else if (data && button == "Ro'yxatdan o'tish") {
         functions.createDriver(bot, chatId, data);
+      } else if (data && button == "Post tayorlash") {
+        await bot.sendMessage(chatId, "Post tayorlash dan datalar keldi");
+        console.log(data);
       }
     } else {
       console.error("web_app_data is missing in the message.");

@@ -6,12 +6,16 @@ const DriverSchema = mongoose.Schema(
     carNumber: { type: String },
     carType: { type: String },
     tariff: { type: String },
-    shift: { type: Boolean }, // smenada
-    queue: { type: Boolean }, // navbatda
+    shift: { type: Boolean, default: false }, // smenada
+    queue: { type: Boolean, default: false }, // navbatda
     where: { type: String },
-    queueIndex: { type: String }, // navbatda raqami
+    queueIndex: { type: Number, default: 0 }, // navbatda raqami
     chatId: { type: String },
-    order: { type: Boolean },
+    active: { type: Boolean },
+    order: {
+      id: { type: [String] },
+      passengersCount: { type: Number },
+    },
   },
   { timestamps: true }
 );

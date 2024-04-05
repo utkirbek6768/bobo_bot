@@ -1,10 +1,17 @@
 require("dotenv").config();
 const Driver = require("../schemas/driver.schema");
 const functions = require("../functions/function.js");
-
+// const FunctionOneA = () => {};
+const FunctionOneB = () => {};
+const FunctionTwooA = () => {};
+const FunctionTwooB = () => {};
 const handleCallbackQuery = async (bot, msg) => {
+  //   console.log(msg);
   const data = JSON.parse(msg.data);
   const chatId = msg.message.chat.id;
+  const kanalId = "-1001967326386";
+  const botId = "-3223539535442174620";
+  const kanalMessageId = msg.message.message_id;
   try {
     if (data.com === "start") {
       try {
@@ -75,13 +82,47 @@ const handleCallbackQuery = async (bot, msg) => {
       } catch (error) {
         console.error("Error handling stop command:", error);
       }
-    } else if (data.com === "nor") {
-      if (data.val == "accept") {
-        await bot.sendMessage(chatId, data.id);
-      } else if (data.val == "next") {
-        await bot.sendMessage(chatId, data.id);
-      } else if (data.val == "err") {
-        await bot.sendMessage(chatId, data.id);
+    } else if (data.cm === "nor") {
+      if (data.vl == "at") {
+        if (msg.chat_instance == botId) {
+          await bot.deleteMessage(chatId, kanalMessageId);
+          await bot.sendMessage(chatId, data.id);
+
+          await Driver.findOneAndUpdate(
+            { chatId: chatId },
+            {
+              $push: { "order.id": data.id },
+              $inc: { "order.passengersCount": parseInt(data.ct, 10) },
+            },
+            { new: true }
+          )
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      } else if (data.vl == "nxt") {
+        if (msg.chat_instance == botId) {
+          await bot.deleteMessage(chatId, kanalMessageId);
+          await bot.sendMessage(chatId, data.id);
+          FunctionTwooA();
+        } else {
+          await bot.deleteMessage(kanalId, kanalMessageId);
+          await bot.sendMessage(chatId, data.id);
+          FunctionTwooB();
+        }
+      } else if (data.vl == "er") {
+        if (msg.chat_instance == botId) {
+          await bot.deleteMessage(chatId, kanalMessageId);
+          await bot.sendMessage(chatId, data.id);
+          FunctionThreeA();
+        } else {
+          await bot.deleteMessage(kanalId, kanalMessageId);
+          await bot.sendMessage(chatId, data.id);
+          FunctionThreeB();
+        }
       }
     }
   } catch (error) {
