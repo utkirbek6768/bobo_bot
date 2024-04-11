@@ -16,6 +16,7 @@ const imageUrl =
   "https://codecapsules.io/wp-content/uploads/2023/07/how-to-create-and-host-a-telegram-bot-on-code-capsules-768x768.png";
 
 const handleMessage = async (bot, msg) => {
+  //   console.log(msg);
   const chatId = msg.chat.id;
   const text = msg.text;
   const telefonRegex = /^998(?:73|90|91|93|94|95|97|98|99)[1-9]\d{6}$/;

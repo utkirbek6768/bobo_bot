@@ -405,7 +405,7 @@ const createPassenger = () => {
 };
 
 // const queueDelete = async () => {
-//   await Queue.updateMany({}, { $pull: { tosh: { chatId: "test" } } });
+//   await Queue.updateMany({}, { $pull: { tosh: { chatId: "177482674" } } });
 // };
 // queueDelete();
 const deleteOldOrders = async () => {

@@ -46,7 +46,7 @@ const handleCallbackQuery = async (bot, msg) => {
     } else if (data.com === "stop") {
       try {
         await bot.deleteMessage(chatId, msg.message.message_id);
-        Driver.findOne({ chatId: data.id })
+        await Driver.findOne({ chatId: data.id })
           .then((result) => {
             functions.queueOut(result.where, data.id);
           })
@@ -83,6 +83,7 @@ const handleCallbackQuery = async (bot, msg) => {
         console.error("Error handling stop command:", error);
       }
     } else if (data.cm === "nor") {
+      console.log("bu data", data);
       if (data.vl == "at") {
         if (msg.chat_instance == botId) {
           await bot.deleteMessage(chatId, kanalMessageId);
@@ -96,12 +97,64 @@ const handleCallbackQuery = async (bot, msg) => {
             },
             { new: true }
           )
-            .then((res) => {
-              console.log(res);
+            .then(async (res) => {
+              const { passengersCount } = res.order;
+              try {
+                if (passengersCount >= 4) {
+                  await Driver.findOne({ chatId: chatId })
+                    .then((result) => {
+                      const region = result.where;
+                      if (region == "fer" || region == "tosh") {
+                        functions.queueOut(region, chatId);
+                      } else {
+                        functions.queueOut("tosh", chatId);
+                        functions.queueOut("fer", chatId);
+                      }
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+
+                  functions.updateDriver(
+                    chatId,
+                    "shift",
+                    false,
+                    "queue",
+                    false,
+                    "where",
+                    "all"
+                  );
+                  const startShift = "start";
+                  await bot.sendMessage(
+                    chatId,
+                    `Haydovchi sizda yolovchilar soni 3 nafardan o'tdi va siz navbatdan chiqarildingiz. Sizga oqyo'y tilaymiz.`,
+                    {
+                      reply_markup: JSON.stringify({
+                        inline_keyboard: [
+                          [
+                            {
+                              text: "Navbatga qo'yish",
+                              callback_data: JSON.stringify({
+                                com: startShift,
+                                id: chatId,
+                              }),
+                            },
+                          ],
+                        ],
+                      }),
+                    }
+                  );
+                }
+              } catch (error) {
+                console.error("Error handling stop command:", error);
+              }
             })
             .catch((err) => {
               console.log(err);
             });
+        } else {
+          console.log(msg);
+          console.log(data);
         }
       } else if (data.vl == "nxt") {
         if (msg.chat_instance == botId) {
