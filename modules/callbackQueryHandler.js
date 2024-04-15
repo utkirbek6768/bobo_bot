@@ -6,10 +6,13 @@ const FunctionOneB = () => {};
 const FunctionTwooA = () => {};
 const FunctionTwooB = () => {};
 const handleCallbackQuery = async (bot, msg) => {
-  //   console.log(msg);
   const data = JSON.parse(msg.data);
+  const chat_instance = msg.chat_instance;
   const chatId = msg.message.chat.id;
-  const kanalId = "-1001967326386";
+  const fromChatId = msg.from.id;
+  //   const kanalId = "-1001967326386";
+  const adminId = "177482674";
+  const kanalId = "261802641235886719";
   const botId = "-3223539535442174620";
   const kanalMessageId = msg.message.message_id;
   try {
@@ -34,8 +37,12 @@ const handleCallbackQuery = async (bot, msg) => {
             data.reg
           )
           .then(async (res) => {
-            // console.log("updateDriver log", res);
             functions.sendStopShiftMessage(bot, chatId, data.reg);
+            await Driver.findOneAndUpdate(
+              { chatId: chatId },
+              { $set: { "order.id": [], "order.passengersCount": 0 } },
+              { new: true }
+            );
           })
           .catch((err) => {
             console.log(err);
@@ -83,78 +90,76 @@ const handleCallbackQuery = async (bot, msg) => {
         console.error("Error handling stop command:", error);
       }
     } else if (data.cm === "nor") {
-      console.log("bu data", data);
       if (data.vl == "at") {
-        if (msg.chat_instance == botId) {
-          await bot.deleteMessage(chatId, kanalMessageId);
-          await bot.sendMessage(chatId, data.id);
+        await bot.deleteMessage(chatId, kanalMessageId);
+        await bot.sendMessage(chatId, data.id);
 
-          await Driver.findOneAndUpdate(
-            { chatId: chatId },
-            {
-              $push: { "order.id": data.id },
-              $inc: { "order.passengersCount": parseInt(data.ct, 10) },
-            },
-            { new: true }
-          )
-            .then(async (res) => {
-              const { passengersCount } = res.order;
-              try {
-                if (passengersCount >= 4) {
-                  await Driver.findOne({ chatId: chatId })
-                    .then((result) => {
-                      const region = result.where;
-                      if (region == "fer" || region == "tosh") {
-                        functions.queueOut(region, chatId);
-                      } else {
-                        functions.queueOut("tosh", chatId);
-                        functions.queueOut("fer", chatId);
-                      }
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
+        try {
+          const query = {
+            chatId: chat_instance == kanalId ? fromChatId : chatId,
+          };
+          const update = {
+            $push: { "order.id": data.id },
+            $inc: { "order.passengersCount": parseInt(data.ct, 10) },
+          };
+          const options = { new: true };
+          const res = await Driver.findOneAndUpdate(query, update, options);
 
-                  functions.updateDriver(
-                    chatId,
-                    "shift",
-                    false,
-                    "queue",
-                    false,
-                    "where",
-                    "all"
-                  );
-                  const startShift = "start";
-                  await bot.sendMessage(
-                    chatId,
-                    `Haydovchi sizda yolovchilar soni 3 nafardan o'tdi va siz navbatdan chiqarildingiz. Sizga oqyo'y tilaymiz.`,
-                    {
-                      reply_markup: JSON.stringify({
-                        inline_keyboard: [
-                          [
-                            {
-                              text: "Navbatga qo'yish",
-                              callback_data: JSON.stringify({
-                                com: startShift,
-                                id: chatId,
-                              }),
-                            },
-                          ],
-                        ],
-                      }),
-                    }
-                  );
-                }
-              } catch (error) {
-                console.error("Error handling stop command:", error);
+          if (res) {
+            const { passengersCount } = res.order;
+
+            if (passengersCount >= 4) {
+              const result = await Driver.findOne({ chatId: query.chatId });
+              const region = result.where;
+
+              if (region == "fer" || region == "tosh") {
+                functions.queueOut(region, query.chatId);
+              } else {
+                functions.queueOut("tosh", query.chatId);
+                functions.queueOut("fer", query.chatId);
               }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        } else {
-          console.log(msg);
-          console.log(data);
+
+              functions.updateDriver(
+                query.chatId,
+                "shift",
+                false,
+                "queue",
+                false,
+                "where",
+                "all"
+              );
+
+              const startShift = "start";
+              await bot.sendMessage(
+                query.chatId,
+                `Haydovchi sizda yolovchilar soni 3 nafardan o'tdi va siz navbatdan chiqarildingiz. Sizga oqyo'y tilaymiz.` +
+                  "\n" +
+                  "Eslatma: Agar qaytadan navbatga qo'ysangiz sizdagi barcha buyurtmalar olib tashlanadi shuning uchun buyurtmalarni bajargandan so'ng navbatga qo'ying!",
+                {
+                  reply_markup: JSON.stringify({
+                    inline_keyboard: [
+                      [
+                        {
+                          text: "Navbatga qo'yish",
+                          callback_data: JSON.stringify({
+                            com: startShift,
+                            id: query.chatId,
+                          }),
+                        },
+                      ],
+                    ],
+                  }),
+                }
+              );
+            }
+          } else {
+            await bot.sendMessage(
+              query.chatId,
+              "Driver.findOneAndUpdate da qanadaydur hatolik yuz berdi"
+            );
+          }
+        } catch (error) {
+          console.error("Error handling stop command:", error);
         }
       } else if (data.vl == "nxt") {
         if (msg.chat_instance == botId) {
@@ -169,7 +174,7 @@ const handleCallbackQuery = async (bot, msg) => {
       } else if (data.vl == "er") {
         if (msg.chat_instance == botId) {
           await bot.deleteMessage(chatId, kanalMessageId);
-          await bot.sendMessage(chatId, data.id);
+          await bot.sendMessage(adminId, data.id);
           FunctionThreeA();
         } else {
           await bot.deleteMessage(kanalId, kanalMessageId);

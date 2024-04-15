@@ -105,32 +105,36 @@ const sendStopShiftMessage = async (bot, chatId, region) => {
 };
 
 const changeRegion = async (bot, chatId) => {
-  await bot.sendMessage(chatId, "Qaysi hududan buyurtma olishni tanlang", {
-    reply_markup: JSON.stringify({
-      inline_keyboard: [
-        [
-          {
-            text: "Farg'onaga",
-            callback_data: JSON.stringify({
-              com: "region",
-              reg: "fer",
-              id: chatId,
-            }),
-          },
+  try {
+    await bot.sendMessage(chatId, "Qaysi hududan buyurtma olishni tanlang", {
+      reply_markup: JSON.stringify({
+        inline_keyboard: [
+          [
+            {
+              text: "Farg'onaga",
+              callback_data: JSON.stringify({
+                com: "region",
+                reg: "fer",
+                id: chatId,
+              }),
+            },
+          ],
+          [
+            {
+              text: "Toshkentdan",
+              callback_data: JSON.stringify({
+                com: "region",
+                reg: "tosh",
+                id: chatId,
+              }),
+            },
+          ],
         ],
-        [
-          {
-            text: "Toshkentdan",
-            callback_data: JSON.stringify({
-              com: "region",
-              reg: "tosh",
-              id: chatId,
-            }),
-          },
-        ],
-      ],
-    }),
-  });
+      }),
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const createOrder = async (bot, chatId, data) => {
@@ -155,7 +159,6 @@ const createOrder = async (bot, chatId, data) => {
       .save()
       .then(async (res) => {
         const resId = res._id.toString();
-
         const newOrder = "nor";
         const next = "nxt";
         const acceptance = "at";
@@ -204,6 +207,52 @@ const createOrder = async (bot, chatId, data) => {
                   callback_data: JSON.stringify({
                     cm: newOrder,
                     vl: next,
+                    id: resId,
+                    ct: passengersCount,
+                  }),
+                },
+              ],
+              [
+                {
+                  text: "Buyurtmada xatolik",
+                  callback_data: JSON.stringify({
+                    cm: newOrder,
+                    vl: error,
+                    id: resId,
+                    ct: passengersCount,
+                  }),
+                },
+              ],
+            ],
+          }),
+        };
+
+        const optionsForKanal = {
+          caption:
+            `📩 Yangi buyrtma` +
+            "\n\n" +
+            `📍 Qayrerdan: ${where == "fer" ? "Farg'onadan" : "Toshkentdan"}` +
+            "\n\n" +
+            `📍 Qayerga: ${whereto == "fer" ? "Farg'onaga" : "Toshkentga"}` +
+            "\n\n" +
+            `🔢 Yo'lovchilar soni: ${passengersCount} ta` +
+            "\n\n" +
+            `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
+            "\n\n" +
+            `✒️ Izoh: ${
+              description.length > 0 ? description : "Kiritilmagan"
+            }` +
+            "\n\n" +
+            `☎️ Telefon: +${phoneNumber}`,
+          reply_markup: JSON.stringify({
+            inline_keyboard: [
+              [
+                {
+                  text: "Buyurtmani oldim",
+                  callback_data: JSON.stringify({
+                    cm: newOrder,
+                    vl: acceptance,
+                    id: resId,
                     ct: passengersCount,
                   }),
                 },
@@ -229,8 +278,15 @@ const createOrder = async (bot, chatId, data) => {
           try {
             const driverChatId = queue[where][0].chatId;
             const driver = await Driver.findOne({ chatId: driverChatId });
+            const { driverPassengersCount } = driver;
+            const totalPassengersCount =
+              passengersCount + driverPassengersCount;
             if (driver) {
-              await bot.sendPhoto(queue[where][0].chatId, imageUrl, options);
+              if (totalPassengersCount >= 4) {
+                await bot.sendPhoto(driverChatId, imageUrl, options);
+              } else {
+                await bot.sendPhoto(queue[where][1].chatId, imageUrl, options);
+              }
             }
             await bot.sendMessage(
               chatId,
@@ -245,7 +301,7 @@ const createOrder = async (bot, chatId, data) => {
             "Buyurtmangiz uchun raxmat, tez orada haydovchilarimiz sizbilan bog'lanishadi."
           );
 
-          await bot.sendPhoto(kanalId, imageUrl, options);
+          await bot.sendPhoto(kanalId, imageUrl, optionsForKanal);
         }
       })
       .catch((err) => {
