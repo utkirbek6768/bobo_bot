@@ -16,7 +16,7 @@ const imageUrl =
   "https://codecapsules.io/wp-content/uploads/2023/07/how-to-create-and-host-a-telegram-bot-on-code-capsules-768x768.png";
 
 const handleMessage = async (bot, msg) => {
-  //   console.log(msg);
+  console.log("handleMessage", msg);
   const chatId = msg.chat.id;
   const text = msg.text;
   const telefonRegex = /^998(?:73|90|91|93|94|95|97|98|99)[1-9]\d{6}$/;
@@ -41,8 +41,9 @@ const handleMessage = async (bot, msg) => {
       } catch (error) {
         console.error("Error handling /start command:", error);
       }
-    } else if (msg.text == "/start@tashkent_fergana_dispatcher_bot") {
+    } else if (msg.new_chat_members) {
       try {
+        console.log(msg);
         functions.sendWelcomeMessage(bot, msg.from.id);
       } catch (err) {
         console.log(err);

@@ -1,20 +1,23 @@
 require("dotenv").config();
 const Driver = require("../schemas/driver.schema");
+const Queue = require("../schemas/queue.schema");
+const Order = require("../schemas/order.schema");
 const functions = require("../functions/function.js");
-// const FunctionOneA = () => {};
-const FunctionOneB = () => {};
-const FunctionTwooA = () => {};
-const FunctionTwooB = () => {};
 const handleCallbackQuery = async (bot, msg) => {
   const data = JSON.parse(msg.data);
-  const chat_instance = msg.chat_instance;
-  const chatId = msg.message.chat.id;
+  const chat_instance = msg.chat_instance; // ==> chat_instance o'zgaruvchan bo'ladi
+  const chatId = msg.from.id;
   const fromChatId = msg.from.id;
-  //   const kanalId = "-1001967326386";
+  const kanalId = "-1001967326386";
   const adminId = "177482674";
-  const kanalId = "261802641235886719";
+  //   const kanalId = "261802641235886719";
   const botId = "-3223539535442174620";
   const kanalMessageId = msg.message.message_id;
+  const commonChatId = chat_instance == kanalId ? fromChatId : chatId;
+  const chatType = msg.message.chat.type; // supergroup, private
+  const isBot = msg.message.chat.type; // true, false
+  const imageUrl =
+    "https://codecapsules.io/wp-content/uploads/2023/07/how-to-create-and-host-a-telegram-bot-on-code-capsules-768x768.png";
   try {
     if (data.com === "start") {
       try {
@@ -91,12 +94,14 @@ const handleCallbackQuery = async (bot, msg) => {
       }
     } else if (data.cm === "nor") {
       if (data.vl == "at") {
-        await bot.deleteMessage(chatId, kanalMessageId);
-        await bot.sendMessage(chatId, data.id);
-
+        console.log(msg);
+        await bot.deleteMessage(
+          chatType != "supergroup" ? chatId : kanalId,
+          kanalMessageId
+        );
         try {
           const query = {
-            chatId: chat_instance == kanalId ? fromChatId : chatId,
+            chatId: chatId,
           };
           const update = {
             $push: { "order.id": data.id },
@@ -107,6 +112,13 @@ const handleCallbackQuery = async (bot, msg) => {
 
           if (res) {
             const { passengersCount } = res.order;
+            functions.sendingOrderToDriverOrKanal(
+              bot,
+              chatId,
+              data,
+              data.vl,
+              false
+            );
 
             if (passengersCount >= 4) {
               const result = await Driver.findOne({ chatId: query.chatId });
@@ -132,10 +144,11 @@ const handleCallbackQuery = async (bot, msg) => {
               const startShift = "start";
               await bot.sendMessage(
                 query.chatId,
-                `Haydovchi sizda yolovchilar soni 3 nafardan o'tdi va siz navbatdan chiqarildingiz. Sizga oqyo'y tilaymiz.` +
-                  "\n" +
-                  "Eslatma: Agar qaytadan navbatga qo'ysangiz sizdagi barcha buyurtmalar olib tashlanadi shuning uchun buyurtmalarni bajargandan so'ng navbatga qo'ying!",
+                `<b>Haydovchi sizda yolovchilar soni 3 nafardan o'tdi va siz navbatdan chiqarildingiz.</b>\n\n` +
+                  `<b>Sizga oq yo'y tilaymiz.</b>\n\n` +
+                  `<i>Eslatma: Agar qaytadan navbatga qo'ysangiz, siz hududga ohirgi bo'lib navbatga qo'yilasiz!</i>`,
                 {
+                  parse_mode: "HTML",
                   reply_markup: JSON.stringify({
                     inline_keyboard: [
                       [
@@ -159,32 +172,80 @@ const handleCallbackQuery = async (bot, msg) => {
             );
           }
         } catch (error) {
-          console.error("Error handling stop command:", error);
+          console.error("Error handling stop command:", error.message);
         }
       } else if (data.vl == "nxt") {
-        if (msg.chat_instance == botId) {
+        if (msg.chat_instance) {
+          console.log(msg);
           await bot.deleteMessage(chatId, kanalMessageId);
-          await bot.sendMessage(chatId, data.id);
-          FunctionTwooA();
+          try {
+            const driver = await Driver.findOne({ chatId: commonChatId });
+            if (!driver) {
+              console.log("Driver not found");
+              return;
+            }
+            const where = driver.where;
+            const queue = await Queue.findOne({});
+            if (!queue) {
+              console.log("Queue is empty");
+              return;
+            }
+            const items = queue[where];
+            const driverIndex = items.findIndex(
+              (item) => item.chatId == commonChatId
+            );
+            if (driverIndex === -1) {
+              console.log("Driver not found in queue");
+              return;
+            }
+            const nextIndex =
+              driverIndex + 1 < items.length ? driverIndex + 1 : null;
+            if (nextIndex != null) {
+              const nextDriverChatId = items[nextIndex].chatId;
+
+              if (!nextDriverChatId) {
+                console.log("Next driver chat ID not found");
+                return;
+              }
+
+              functions.sendingOrderToDriverOrKanal(
+                bot,
+                nextDriverChatId,
+                data,
+                data.vl,
+                false
+              );
+            } else {
+              functions.sendingOrderToDriverOrKanal(
+                bot,
+                kanalId,
+                data,
+                data.vl,
+                true
+              );
+            }
+          } catch (err) {
+            console.log(err.message);
+          }
         } else {
-          await bot.deleteMessage(kanalId, kanalMessageId);
-          await bot.sendMessage(chatId, data.id);
-          FunctionTwooB();
         }
       } else if (data.vl == "er") {
+        console.log(msg);
         if (msg.chat_instance == botId) {
-          await bot.deleteMessage(chatId, kanalMessageId);
+          console.log("msg.chat_instance == botId");
+          //   await bot.deleteMessage(chatId, kanalMessageId);
           await bot.sendMessage(adminId, data.id);
-          FunctionThreeA();
-        } else {
-          await bot.deleteMessage(kanalId, kanalMessageId);
+        } else if (msg.chat_instance == kanalId) {
+          console.log("msg.chat_instance == kanalId");
+          //   await bot.deleteMessage(kanalId, kanalMessageId);
           await bot.sendMessage(chatId, data.id);
-          FunctionThreeB();
+        } else {
+          console.log("bu else", msg.chat_instance);
         }
       }
     }
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 };
 

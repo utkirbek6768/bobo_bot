@@ -37,25 +37,25 @@ bot.setMyCommands([
 ]);
 const Queue = require("./schemas/queue.schema.js");
 
-const createQueue = async () => {
-  try {
-    const queue = new Queue({
-      fer: [
-        {
-          chatId: "test",
-        },
-      ],
-      tosh: [
-        {
-          chatId: "test",
-        },
-      ],
-    });
-    await queue.save();
-  } catch (error) {
-    console.log(error);
-  }
-};
+// const createQueue = async () => {
+//   try {
+//     const queue = new Queue({
+//       fer: [
+//         {
+//           chatId: "test",
+//         },
+//       ],
+//       tosh: [
+//         {
+//           chatId: "test",
+//         },
+//       ],
+//     });
+//     await queue.save();
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 // createQueue();
 
 bot.on("message", async (msg) => handleMessage(bot, msg));

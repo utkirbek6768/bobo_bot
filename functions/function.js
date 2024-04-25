@@ -14,6 +14,10 @@ const {
 } = require("../markups/markups");
 
 const kanalId = "-1001967326386";
+const imageOrder =
+  "https://codecapsules.io/wp-content/uploads/2023/07/how-to-create-and-host-a-telegram-bot-on-code-capsules-768x768.png";
+const imageDriver =
+  "https://img.freepik.com/premium-psd/isolated-realistic-shiny-metalic-orange-luxury-city-taxi-cab-car-from-right-front-angle-view_16145-9738.jpg";
 
 const sendWelcomeMessage = async (bot, chatId) => {
   try {
@@ -140,8 +144,7 @@ const changeRegion = async (bot, chatId) => {
 const createOrder = async (bot, chatId, data) => {
   try {
     const cleanPhone = data.phoneNumber.replace(/[\s\+]/g, "");
-    const imageUrl =
-      "https://codecapsules.io/wp-content/uploads/2023/07/how-to-create-and-host-a-telegram-bot-on-code-capsules-768x768.png";
+
     const createOrder = new Order({
       where: data.where,
       whereto: data.whereto,
@@ -278,15 +281,11 @@ const createOrder = async (bot, chatId, data) => {
           try {
             const driverChatId = queue[where][0].chatId;
             const driver = await Driver.findOne({ chatId: driverChatId });
-            const { driverPassengersCount } = driver;
-            const totalPassengersCount =
-              passengersCount + driverPassengersCount;
+            // const { driverPassengersCount } = driver;
+            // const totalPassengersCount =
+            //   passengersCount + driverPassengersCount;
             if (driver) {
-              if (totalPassengersCount >= 4) {
-                await bot.sendPhoto(driverChatId, imageUrl, options);
-              } else {
-                await bot.sendPhoto(queue[where][1].chatId, imageUrl, options);
-              }
+              await bot.sendPhoto(driverChatId, imageOrder, options);
             }
             await bot.sendMessage(
               chatId,
@@ -301,7 +300,7 @@ const createOrder = async (bot, chatId, data) => {
             "Buyurtmangiz uchun raxmat, tez orada haydovchilarimiz sizbilan bog'lanishadi."
           );
 
-          await bot.sendPhoto(kanalId, imageUrl, optionsForKanal);
+          await bot.sendPhoto(kanalId, imageOrder, optionsForKanal);
         }
       })
       .catch((err) => {
@@ -329,8 +328,6 @@ const createDriver = async (bot, chatId, data) => {
   try {
     await Driver.deleteMany({ chatId: chatId });
 
-    const imageUrl =
-      "https://img.freepik.com/premium-psd/isolated-realistic-shiny-metalic-orange-luxury-city-taxi-cab-car-from-right-front-angle-view_16145-9738.jpg";
     const createDriver = new Driver({
       userName: data.userName,
       carNumber: data.carNumber,
@@ -379,7 +376,7 @@ const createDriver = async (bot, chatId, data) => {
       }),
     };
 
-    await bot.sendPhoto(chatId, imageUrl, options);
+    await bot.sendPhoto(chatId, imageDriver, options);
     await bot.sendMessage(
       chatId,
       'Kanalga elon berish uchun "Post atyorlash" tugmasida foydalaning',
@@ -475,6 +472,88 @@ const deleteOldOrders = async () => {
     console.error("Error deleting orders:", error);
   }
 };
+
+const sendingOrderToDriverOrKanal = async (
+  bot,
+  chatId,
+  data,
+  command,
+  kanal
+) => {
+  const order = await Order.findOne({ _id: data.id });
+  if (!order) {
+    console.log("Order not found");
+    return;
+  }
+
+  const {
+    where: orderWhere,
+    whereto,
+    passengersCount,
+    delivery,
+    description,
+    phoneNumber,
+  } = order;
+
+  const options = {
+    caption: `📩 ${
+      command != "at" ? "Yangi buyurtma" : "Ushbu buyurtma sizga biriktirildi"
+    }\n\n📍 Qayrerdan: ${
+      orderWhere == "fer" ? "Farg'onadan" : "Toshkentdan"
+    }\n\n📍 Qayerga: ${
+      whereto == "fer" ? "Farg'onaga" : "Toshkentga"
+    }\n\n🔢 Yo'lovchilar soni: ${passengersCount} ta\n\n📦 Pochta: ${
+      delivery ? "Bor" : "Yo'q"
+    }\n\n✒️ Izoh: ${
+      description.length > 0 ? description : "Kiritilmagan"
+    }\n\n☎️ Telefon: +${phoneNumber}`,
+    reply_markup: JSON.stringify({
+      inline_keyboard:
+        command != "at"
+          ? [
+              [
+                {
+                  text: "Buyurtmani oldim",
+                  callback_data: JSON.stringify({
+                    cm: "nor",
+                    vl: "at",
+                    id: order._id.toString(),
+                    ct: passengersCount,
+                  }),
+                },
+              ],
+              kanal
+                ? []
+                : [
+                    {
+                      text: "O'tkazib yuborish",
+                      callback_data: JSON.stringify({
+                        cm: "nor",
+                        vl: "nxt",
+                        id: order._id.toString(),
+                        ct: passengersCount,
+                      }),
+                    },
+                  ],
+              [
+                {
+                  text: "Buyurtmada xatolik",
+                  callback_data: JSON.stringify({
+                    cm: "nor",
+                    vl: "er",
+                    id: order._id.toString(),
+                    ct: passengersCount,
+                  }),
+                },
+              ],
+            ]
+          : [],
+    }),
+  };
+
+  await bot.sendPhoto(chatId, imageOrder, options);
+};
+
 // ========bu eski orderlani o'chirish uchun============
 const checkAndDeleteOrders = async () => {
   const currentDate = new Date();
@@ -497,4 +576,5 @@ module.exports = {
   sendWelcomeMessage,
   changeRegion,
   queueOut,
+  sendingOrderToDriverOrKanal,
 };
