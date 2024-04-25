@@ -509,7 +509,7 @@ const sendingOrderToDriverOrKanal = async (
     }\n\n☎️ Telefon: +${phoneNumber}`,
     reply_markup: JSON.stringify({
       inline_keyboard:
-        command != "at"
+        (command != "at") | (command == "er")
           ? [
               [
                 {

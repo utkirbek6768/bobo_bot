@@ -230,18 +230,17 @@ const handleCallbackQuery = async (bot, msg) => {
         } else {
         }
       } else if (data.vl == "er") {
-        console.log(msg);
-        if (msg.chat_instance == botId) {
-          console.log("msg.chat_instance == botId");
-          //   await bot.deleteMessage(chatId, kanalMessageId);
-          await bot.sendMessage(adminId, data.id);
-        } else if (msg.chat_instance == kanalId) {
-          console.log("msg.chat_instance == kanalId");
-          //   await bot.deleteMessage(kanalId, kanalMessageId);
-          await bot.sendMessage(chatId, data.id);
-        } else {
-          console.log("bu else", msg.chat_instance);
-        }
+        await bot.deleteMessage(
+          chatType != "supergroup" ? chatId : kanalId,
+          kanalMessageId
+        );
+        functions.sendingOrderToDriverOrKanal(
+          bot,
+          177482674,
+          data,
+          data.vl,
+          true
+        );
       }
     }
   } catch (error) {

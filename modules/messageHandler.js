@@ -43,7 +43,6 @@ const handleMessage = async (bot, msg) => {
       }
     } else if (msg.new_chat_members) {
       try {
-        console.log(msg);
         functions.sendWelcomeMessage(bot, msg.from.id);
       } catch (err) {
         console.log(err);
@@ -71,7 +70,7 @@ const handleMessage = async (bot, msg) => {
     } else {
     }
   } catch (error) {
-    console.log(error);
+    console.error(error.message);
   }
 };
 
