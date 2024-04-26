@@ -5,7 +5,7 @@ const Order = require("../schemas/order.schema");
 const functions = require("../functions/function.js");
 const handleCallbackQuery = async (bot, msg) => {
   const data = JSON.parse(msg.data);
-  const chat_instance = msg.chat_instance; // ==> chat_instance o'zgaruvchan bo'ladi
+  const chat_instance = msg.chat_instance;
   const chatId = msg.from.id;
   const fromChatId = msg.from.id;
   const kanalId = "-1001967326386";
@@ -94,7 +94,6 @@ const handleCallbackQuery = async (bot, msg) => {
       }
     } else if (data.cm === "nor") {
       if (data.vl == "at") {
-        console.log(msg);
         await bot.deleteMessage(
           chatType != "supergroup" ? chatId : kanalId,
           kanalMessageId
@@ -176,7 +175,6 @@ const handleCallbackQuery = async (bot, msg) => {
         }
       } else if (data.vl == "nxt") {
         if (msg.chat_instance) {
-          console.log(msg);
           await bot.deleteMessage(chatId, kanalMessageId);
           try {
             const driver = await Driver.findOne({ chatId: commonChatId });
