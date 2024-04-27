@@ -4,6 +4,8 @@ const functions = require("../functions/function");
 const Driver = require("../schemas/driver.schema");
 
 const handleMessage = async (bot, msg) => {
+  //   console.log("handleMessage ======> ", msg);
+  bot.setMyCommands([{ command: "/start", description: "Start" }]);
   const chatId = msg.chat.id;
   try {
     if (msg.text == "/start") {

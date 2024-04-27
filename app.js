@@ -34,7 +34,6 @@ bot.setMyCommands([
   { command: "/register", description: "Registratsiya" },
   { command: "/createpost", description: "Kanalga elon berish" },
 ]);
-
 bot.on("message", async (msg) => handleMessage(bot, msg));
 bot.on("callback_query", async (msg) => handleCallbackQuery(bot, msg));
 bot.onText(/\/start/, async (msg) => StartCommand(bot, msg));
