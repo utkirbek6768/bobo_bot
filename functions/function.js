@@ -125,7 +125,7 @@ const changeRegion = async (bot, chatId) => {
           ],
           [
             {
-              text: "Toshkentdan",
+              text: "Toshkentdga",
               callback_data: JSON.stringify({
                 com: "region",
                 reg: "tosh",

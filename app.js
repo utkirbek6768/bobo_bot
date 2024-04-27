@@ -29,34 +29,11 @@ mongoose
     console.log("DB connection error: ");
   });
 
-// bot.setMyCommands([{ command: "/start", description: "Start" }]);
 bot.setMyCommands([
   { command: "/start", description: "Start" },
   { command: "/register", description: "Registratsiya" },
   { command: "/createpost", description: "Kanalga elon berish" },
 ]);
-const Queue = require("./schemas/queue.schema.js");
-
-// const createQueue = async () => {
-//   try {
-//     const queue = new Queue({
-//       fer: [
-//         {
-//           chatId: "test",
-//         },
-//       ],
-//       tosh: [
-//         {
-//           chatId: "test",
-//         },
-//       ],
-//     });
-//     await queue.save();
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-// createQueue();
 
 bot.on("message", async (msg) => handleMessage(bot, msg));
 bot.on("callback_query", async (msg) => handleCallbackQuery(bot, msg));
@@ -68,7 +45,6 @@ bot.on("web_app_data", async (msg) => {
       const data = JSON.parse(msg.web_app_data.data);
       const button = msg.web_app_data.button_text;
       const chatId = msg.chat.id;
-      const fromId = msg.from.id;
       if (data && button == "Buyurtma berish") {
         functions.createOrder(bot, chatId, data);
       } else if (data && button == "Ro'yxatdan o'tish") {
@@ -85,7 +61,6 @@ bot.on("web_app_data", async (msg) => {
   }
 });
 
-// Starting HTTP server
 const port = process.env.PORT || 4100;
 const server = http.createServer(app);
 server.listen(port, () => {

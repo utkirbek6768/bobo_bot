@@ -11,13 +11,9 @@ const handleCallbackQuery = async (bot, msg) => {
   const kanalId = "-1001967326386";
   const adminId = "177482674";
   //   const kanalId = "261802641235886719";
-  const botId = "-3223539535442174620";
   const kanalMessageId = msg.message.message_id;
   const commonChatId = chat_instance == kanalId ? fromChatId : chatId;
   const chatType = msg.message.chat.type; // supergroup, private
-  const isBot = msg.message.chat.type; // true, false
-  const imageUrl =
-    "https://codecapsules.io/wp-content/uploads/2023/07/how-to-create-and-host-a-telegram-bot-on-code-capsules-768x768.png";
   try {
     if (data.com === "start") {
       try {

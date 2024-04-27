@@ -1,18 +1,3 @@
-const fs = require("fs");
-const https = require("https");
-const path = require("path");
-// const functions = require("../function/function.js");
-
-const { LocalStorage } = require("node-localstorage");
-const localStorage = new LocalStorage("./scratch");
-
-const langCode = "uz";
-// const lang = functions.loadLanguageFile(langCode);
-
-// setInterval(() => {
-//   langCode.value = localStorage.getItem("lang") || "uz";
-// }, 5000);
-
 const remove = {
   reply_markup: {
     remove_keyboard: true,
@@ -29,7 +14,6 @@ const openWebKeyboardPassengers = {
           text: "Buyurtma berish",
           web_app: {
             url: "https://bobomurodsite.netlify.app/",
-            // url: "https://t.me/tashkent_fergana_dispatcher_bot",
           },
         },
       ],
