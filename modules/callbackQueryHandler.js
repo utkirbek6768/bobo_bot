@@ -8,7 +8,7 @@ const handleCallbackQuery = async (bot, msg) => {
   const chat_instance = msg.chat_instance;
   const chatId = msg.from.id;
   const fromChatId = msg.from.id;
-  //   const kanalId = "-1001962113423"; // bu boboni kanali
+  //   const kanalId = "-1001962113423"; // bu boboni kanali chatId si
   const kanalId = "-1001967326386";
   const adminId = "177482674";
   const kanalMessageId = msg.message.message_id;
