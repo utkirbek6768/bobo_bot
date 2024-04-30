@@ -1,11 +1,15 @@
 require("dotenv").config();
-const { remove, openWebKeyboardDriver } = require("../markups/markups");
+const {
+  remove,
+  openWebKeyboardDriver,
+  openWebKeyboardDriverPost,
+  openWebKeyboardPassengers,
+} = require("../markups/markups");
 const functions = require("../functions/function");
 const Driver = require("../schemas/driver.schema");
 
 const handleMessage = async (bot, msg) => {
-  //   console.log("handleMessage ======> ", msg);
-  bot.setMyCommands([{ command: "/start", description: "Start" }]);
+  //   console.log(msg);
   const chatId = msg.chat.id;
   try {
     if (msg.text == "/start") {
@@ -25,28 +29,23 @@ const handleMessage = async (bot, msg) => {
       } catch (error) {
         console.error("Error handling /start command:", error);
       }
-    } else if (msg.new_chat_members) {
+    } else if (msg.text == "/start@tashkent_fergana_dispatcher_bot") {
       try {
         functions.sendWelcomeMessage(bot, msg.from.id);
       } catch (err) {
         console.log(err);
       }
-    } else if (msg.text == "/register") {
+    } else if (msg.text == "/newDriverRegistration") {
       try {
+        // await bot.sendMessage(
+        //   chatId,
+        //   "Assalomu alaykum hurmatli haydovchi biz siz bilan hamkorlik qilishdan mamnunmiz.\n\nIltimos quyidagi tugma orqali ro'yxatdan o'ting",
+        //   openWebKeyboardDriver
+        // );
         await bot.sendMessage(
           chatId,
-          "Assalomu alaykum hurmatli haydovchi biz siz bilan hamkorlik qilishdan mamnunmiz.\n\nIltimos quyidagi tugma orqali ro'yxatdan o'ting",
-          openWebKeyboardDriver
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    } else if (msg.text == "/createpost") {
-      try {
-        await bot.sendMessage(
-          chatId,
-          "Assalomu alaykum hurmatli haydovchi kanalga elon berish uchun oson  post tayorlashingiz mumkin .\n\nIltimos quyidagi tugma orqali boshlang",
-          remove
+          "Anketa yaratish",
+          openWebKeyboardPassengers
         );
       } catch (err) {
         console.log(err);

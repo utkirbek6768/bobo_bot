@@ -45,7 +45,7 @@ const openWebKeyboardDriverPost = {
     keyboard: [
       [
         {
-          text: "Post tayorlash",
+          text: "Anketa yaratish",
           web_app: {
             url: "https://bobomurodsite.netlify.app/createpost",
           },

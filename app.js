@@ -29,11 +29,7 @@ mongoose
     console.log("DB connection error: ");
   });
 
-bot.setMyCommands([
-  { command: "/start", description: "Start" },
-  { command: "/register", description: "Registratsiya" },
-  { command: "/createpost", description: "Kanalga elon berish" },
-]);
+bot.setMyCommands([{ command: "/start", description: "Start" }]);
 bot.on("message", async (msg) => handleMessage(bot, msg));
 bot.on("callback_query", async (msg) => handleCallbackQuery(bot, msg));
 bot.onText(/\/start/, async (msg) => StartCommand(bot, msg));
@@ -45,7 +41,7 @@ bot.on("web_app_data", async (msg) => {
       const button = msg.web_app_data.button_text;
       const chatId = msg.chat.id;
       if (data && button == "Buyurtma berish") {
-        functions.createOrder(bot, chatId, data);
+        functions.createOrder(bot, chatId, data, msg.from);
       } else if (data && button == "Ro'yxatdan o'tish") {
         functions.createDriver(bot, chatId, data);
       } else if (data && button == "Post tayorlash") {

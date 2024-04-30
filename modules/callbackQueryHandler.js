@@ -9,7 +9,7 @@ const handleCallbackQuery = async (bot, msg) => {
   const chatId = msg.from.id;
   const fromChatId = msg.from.id;
   //   const kanalId = "-1001962113423"; // bu boboni kanali chatId si
-  const kanalId = "-1001967326386";
+  const kanalId = msg.message.chat.id;
   const adminId = "177482674";
   const kanalMessageId = msg.message.message_id;
   const commonChatId = chat_instance == kanalId ? fromChatId : chatId;
@@ -224,8 +224,10 @@ const handleCallbackQuery = async (bot, msg) => {
         } else {
         }
       } else if (data.vl == "er") {
+        // console.log(msg.message.message_id);
+        // await bot.deleteMessage(msg.message.chat.id, kanalMessageId);
         await bot.deleteMessage(
-          chatType != "supergroup" ? chatId : kanalId,
+          chatType != "supergroup" ? chatId : msg.message.chat.id,
           kanalMessageId
         );
         functions.sendingOrderToDriverOrKanal(

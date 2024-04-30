@@ -15,7 +15,7 @@ const {
 
 const kanalId = "-1001967326386";
 const imageOrder =
-  "https://codecapsules.io/wp-content/uploads/2023/07/how-to-create-and-host-a-telegram-bot-on-code-capsules-768x768.png";
+  "https://qph.cf2.quoracdn.net/main-qimg-b8c260dba266ea341bef10b4e338c0fe-pjlq";
 const imageDriver =
   "https://img.freepik.com/premium-psd/isolated-realistic-shiny-metalic-orange-luxury-city-taxi-cab-car-from-right-front-angle-view_16145-9738.jpg";
 
@@ -26,8 +26,7 @@ const sendWelcomeMessage = async (bot, chatId) => {
       `Assalomu alaykum dispatcher botga xush kelibsiz` +
         "\n\n" +
         `Buyutma berish tugmasi orqali tez va oson buyurtma bering !` +
-        "\n\n" +
-        `Agar haydovchi bo'lsangiz Menu dagi Registratsiya tugmasi orqali ro'xatdan o'ting!`,
+        "\n\n",
       openWebKeyboardPassengers
     );
   } catch (err) {
@@ -141,18 +140,26 @@ const changeRegion = async (bot, chatId) => {
   }
 };
 
-const createOrder = async (bot, chatId, data) => {
+const createOrder = async (bot, chatId, data, from) => {
   try {
-    const cleanPhone = data.phoneNumber.replace(/[\s\+]/g, "");
-
+    const cleanPhone = data.phoneNumber.toString().replace(/[\s\+]/g, "");
+    const {
+      where,
+      whereto,
+      passengersCount,
+      delivery,
+      description,
+      orderStatus,
+    } = data;
     const createOrder = new Order({
-      where: data.where,
-      whereto: data.whereto,
-      passengersCount: data.passengersCount,
-      delivery: data.delivery,
-      description: data.description,
-      orderStatus: data.orderStatus,
-      phoneNumber: cleanPhone,
+      where: where,
+      whereto: whereto,
+      passengersCount: passengersCount,
+      delivery: delivery,
+      description: description.length > 0 ? description : "Kiritilmagan",
+      orderStatus: orderStatus,
+      phoneNumber: cleanPhone.length > 6 ? "+" + cleanPhone : " Kiritilmagan",
+      userName: from.username ? from.username : "",
       passengersChatId: chatId,
       driverChatId: "",
       driverId: "",
@@ -173,6 +180,7 @@ const createOrder = async (bot, chatId, data) => {
           delivery,
           description,
           phoneNumber,
+          userName,
         } = res;
         const options = {
           caption:
@@ -182,15 +190,17 @@ const createOrder = async (bot, chatId, data) => {
             "\n\n" +
             `📍 Qayerga: ${whereto == "fer" ? "Farg'onaga" : "Toshkentga"}` +
             "\n\n" +
-            `🔢 Yo'lovchilar soni: ${passengersCount} ta` +
+            `🔢 Yo'lovchilar soni: ${
+              passengersCount ? passengersCount + " ta" : "Kiritilmagan"
+            }` +
             "\n\n" +
             `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
             "\n\n" +
-            `✒️ Izoh: ${
-              description.length > 0 ? description : "Kiritilmagan"
-            }` +
+            `✒️ Izoh: ${description}` +
             "\n\n" +
-            `☎️ Telefon: +${phoneNumber}`,
+            `☎️ Telefon: ${phoneNumber}` +
+            "\n\n" +
+            `☎️ Telegram: @${userName}`,
           reply_markup: JSON.stringify({
             inline_keyboard: [
               [
@@ -238,7 +248,9 @@ const createOrder = async (bot, chatId, data) => {
             "\n\n" +
             `📍 Qayerga: ${whereto == "fer" ? "Farg'onaga" : "Toshkentga"}` +
             "\n\n" +
-            `🔢 Yo'lovchilar soni: ${passengersCount} ta` +
+            `🔢 Yo'lovchilar soni: ${
+              passengersCount ? passengersCount + " ta" : "Kiritilmagan"
+            }` +
             "\n\n" +
             `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
             "\n\n" +
@@ -246,7 +258,9 @@ const createOrder = async (bot, chatId, data) => {
               description.length > 0 ? description : "Kiritilmagan"
             }` +
             "\n\n" +
-            `☎️ Telefon: +${phoneNumber}`,
+            `☎️ Telefon: ${phoneNumber}` +
+            "\n\n" +
+            `📲 Telegram: @${userName}`,
           reply_markup: JSON.stringify({
             inline_keyboard: [
               [
@@ -457,10 +471,10 @@ const createPassenger = () => {
   });
 };
 
-// const queueDelete = async () => {
-//   await Queue.updateMany({}, { $pull: { tosh: { chatId: "177482674" } } });
-// };
-// queueDelete();
+const queueDelete = async () => {
+  await Queue.updateMany({}, { $pull: { tosh: { chatId: "7005130337" } } });
+};
+queueDelete();
 const deleteOldOrders = async () => {
   try {
     const threeDaysAgo = new Date();
