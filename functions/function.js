@@ -494,7 +494,8 @@ const sendingOrderToDriverOrKanal = async (
   chatId,
   data,
   command,
-  kanal
+  kanal,
+  from
 ) => {
   const order = await Order.findOne({ _id: data.id });
   if (!order) {
@@ -529,7 +530,7 @@ const sendingOrderToDriverOrKanal = async (
       "\n\n" +
       `☎️ Telefon: ${phoneNumber}` +
       "\n\n" +
-      `📲 Telegram: @${userName}`,
+      `📲 Telegram: @${from.userName ? from.userName : ""}`,
     reply_markup: JSON.stringify({
       inline_keyboard:
         (command != "at") | (command == "er")
