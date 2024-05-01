@@ -196,11 +196,13 @@ const createOrder = async (bot, chatId, data, from) => {
             "\n\n" +
             `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
             "\n\n" +
-            `✒️ Izoh: ${description}` +
+            `✒️ Izoh: ${
+              description.length > 0 ? description : "Kiritilmagan"
+            }` +
             "\n\n" +
             `☎️ Telefon: ${phoneNumber}` +
             "\n\n" +
-            `☎️ Telegram: @${userName}`,
+            `📲 Telegram: @${userName}`,
           reply_markup: JSON.stringify({
             inline_keyboard: [
               [
@@ -510,17 +512,24 @@ const sendingOrderToDriverOrKanal = async (
   } = order;
 
   const options = {
-    caption: `📩 ${
-      command != "at" ? "Yangi buyurtma" : "Ushbu buyurtma sizga biriktirildi"
-    }\n\n📍 Qayrerdan: ${
-      orderWhere == "fer" ? "Farg'onadan" : "Toshkentdan"
-    }\n\n📍 Qayerga: ${
-      whereto == "fer" ? "Farg'onaga" : "Toshkentga"
-    }\n\n🔢 Yo'lovchilar soni: ${passengersCount} ta\n\n📦 Pochta: ${
-      delivery ? "Bor" : "Yo'q"
-    }\n\n✒️ Izoh: ${
-      description.length > 0 ? description : "Kiritilmagan"
-    }\n\n☎️ Telefon: +${phoneNumber}`,
+    caption:
+      `📩 Yangi buyrtma` +
+      "\n\n" +
+      `📍 Qayrerdan: ${orderWhere == "fer" ? "Farg'onadan" : "Toshkentdan"}` +
+      "\n\n" +
+      `📍 Qayerga: ${whereto == "fer" ? "Farg'onaga" : "Toshkentga"}` +
+      "\n\n" +
+      `🔢 Yo'lovchilar soni: ${
+        passengersCount ? passengersCount + " ta" : "Kiritilmagan"
+      }` +
+      "\n\n" +
+      `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
+      "\n\n" +
+      `✒️ Izoh: ${description.length > 0 ? description : "Kiritilmagan"}` +
+      "\n\n" +
+      `☎️ Telefon: ${phoneNumber}` +
+      "\n\n" +
+      `📲 Telegram: @${userName}`,
     reply_markup: JSON.stringify({
       inline_keyboard:
         (command != "at") | (command == "er")
