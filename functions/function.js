@@ -340,12 +340,14 @@ const updateOrder = async (bot, driverId, orderId, item, value) => {
   }
 };
 
-const createDriver = async (bot, chatId, data) => {
+const createDriver = async (bot, chatId, data, from) => {
   try {
     await Driver.deleteMany({ chatId: chatId });
 
     const createDriver = new Driver({
       userName: data.userName,
+      telegramName: data.userName,
+      phoneNumber: `+${data.phoneNumber}`,
       carNumber: data.carNumber,
       carType: data.carType,
       tariff: data.tariff,
@@ -393,11 +395,11 @@ const createDriver = async (bot, chatId, data) => {
     };
 
     await bot.sendPhoto(chatId, imageDriver, options);
-    await bot.sendMessage(
-      chatId,
-      'Kanalga elon berish uchun "Post atyorlash" tugmasida foydalaning',
-      openWebKeyboardDriverPost
-    );
+    // await bot.sendMessage(
+    //   chatId,
+    //   'Kanalga elon berish uchun "Post atyorlash" tugmasida foydalaning',
+    //   openWebKeyboardDriverPost
+    // );
   } catch (error) {
     console.log(error);
   }
@@ -504,6 +506,7 @@ const sendingOrderToDriverOrKanal = async (
   }
 
   const {
+    _id,
     where: orderWhere,
     whereto,
     passengersCount,
@@ -576,6 +579,36 @@ const sendingOrderToDriverOrKanal = async (
   };
 
   await bot.sendPhoto(chatId, imageOrder, options);
+  // .then(async (sent) => {
+  //   const order = await Driver.findOne({ chatId });
+  //   if (order) {
+  //     console.log(sent);
+  //     console.log(from);
+  //     console.log(order);
+  //     // const nextOrderText =
+  //     //   `📩 Buyurtma navbatdagi haydovchi ( ${order.userName} ) ga o'tkazib yuborildi` +
+  //     //   "\n\n" +
+  //     //   `📍 Qayrerdan: ${
+  //     //     orderWhere == "fer" ? "Farg'onadan" : "Toshkentdan"
+  //     //   }` +
+  //     //   "\n" +
+  //     //   `📍 Qayerga: ${whereto == "fer" ? "Farg'onaga" : "Toshkentga"}` +
+  //     //   "\n" +
+  //     //   `🔢 Yo'lovchilar soni: ${
+  //     //     passengersCount ? passengersCount + " ta" : "Kiritilmagan"
+  //     //   }` +
+  //     //   "\n" +
+  //     //   `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
+  //     //   "\n" +
+  //     //   `✒️ Izoh: ${description.length > 0 ? description : "Kiritilmagan"}` +
+  //     //   "\n\n" +
+  //     //   `🔑 KEY: ${_id}`;
+  //     // await bot.sendMessage(kanalId, nextOrderText);
+  //   }
+  // })
+  // .catch((err) => {
+  //   console.log(err);
+  // });
 };
 
 // ========bu eski orderlani o'chirish uchun============

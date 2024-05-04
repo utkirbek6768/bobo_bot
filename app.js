@@ -43,7 +43,7 @@ bot.on("web_app_data", async (msg) => {
       if (data && button == "Buyurtma berish") {
         functions.createOrder(bot, chatId, data, msg.from);
       } else if (data && button == "Ro'yxatdan o'tish") {
-        functions.createDriver(bot, chatId, data);
+        functions.createDriver(bot, chatId, data, msg.from);
       } else if (data && button == "Post tayorlash") {
         await bot.sendMessage(chatId, "Post tayorlash dan datalar keldi");
         console.log(data);

@@ -9,7 +9,7 @@ const handleCallbackQuery = async (bot, msg) => {
   const chatId = msg.from.id;
   const fromChatId = msg.from.id;
   //   const kanalId = "-1001962113423"; // bu boboni kanali chatId si
-  const kanalId = msg.message.chat.id;
+  const kanalId = "-1001967326386";
   const adminId = "177482674";
   const kanalMessageId = msg.message.message_id;
   const commonChatId = chat_instance == kanalId ? fromChatId : chatId;
@@ -171,60 +171,59 @@ const handleCallbackQuery = async (bot, msg) => {
           console.error("Error handling stop command:", error.message);
         }
       } else if (data.vl == "nxt") {
-        if (msg.chat_instance) {
-          await bot.deleteMessage(chatId, kanalMessageId);
-          try {
-            const driver = await Driver.findOne({ chatId: commonChatId });
-            if (!driver) {
-              console.log("Driver not found");
-              return;
-            }
-            const where = driver.where;
-            const queue = await Queue.findOne({});
-            if (!queue) {
-              console.log("Queue is empty");
-              return;
-            }
-            const items = queue[where];
-            const driverIndex = items.findIndex(
-              (item) => item.chatId == commonChatId
-            );
-            if (driverIndex === -1) {
-              console.log("Driver not found in queue");
-              return;
-            }
-            const nextIndex =
-              driverIndex + 1 < items.length ? driverIndex + 1 : null;
-            if (nextIndex != null) {
-              const nextDriverChatId = items[nextIndex].chatId;
-
-              if (!nextDriverChatId) {
-                console.log("Next driver chat ID not found");
-                return;
-              }
-
-              functions.sendingOrderToDriverOrKanal(
-                bot,
-                nextDriverChatId,
-                data,
-                data.vl,
-                false,
-                msg.from
-              );
-            } else {
-              functions.sendingOrderToDriverOrKanal(
-                bot,
-                kanalId,
-                data,
-                data.vl,
-                true,
-                msg.from
-              );
-            }
-          } catch (err) {
-            console.log(err.message);
+        await bot.deleteMessage(chatId, kanalMessageId);
+        try {
+          const driver = await Driver.findOne({ chatId: commonChatId });
+          if (!driver) {
+            console.log("Driver not found");
+            return;
           }
-        } else {
+          const where = driver.where;
+          const queue = await Queue.findOne({});
+          if (!queue) {
+            console.log("Queue is empty");
+            return;
+          }
+          const items = queue[where];
+          const driverIndex = items.findIndex(
+            (item) => item.chatId == commonChatId
+          );
+          if (driverIndex === -1) {
+            console.log("Driver not found in queue");
+            return;
+          }
+          const nextIndex =
+            driverIndex + 1 < items.length ? driverIndex + 1 : null;
+          if (nextIndex != null) {
+            const nextDriverChatId = items[nextIndex].chatId;
+
+            if (!nextDriverChatId) {
+              console.log("Next driver chat ID not found");
+              return;
+            }
+            console.log("bu next nextDriverChatId");
+            functions.sendingOrderToDriverOrKanal(
+              bot,
+              nextDriverChatId,
+              data,
+              data.vl,
+              false,
+              msg.from
+            );
+          } else {
+            console.log("To'g'ri ishladim", msg);
+            console.log("To'g'ri ishladim", msg.message.chat.id);
+            functions.sendingOrderToDriverOrKanal(
+              bot,
+              kanalId,
+              data,
+              data.vl,
+              true,
+              msg.from
+            );
+          }
+        } catch (err) {
+          console.log(err.message);
         }
       } else if (data.vl == "er") {
         // console.log(msg.message.message_id);

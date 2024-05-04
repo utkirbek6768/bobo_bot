@@ -42,9 +42,14 @@ const handleMessage = async (bot, msg) => {
         //   "Assalomu alaykum hurmatli haydovchi biz siz bilan hamkorlik qilishdan mamnunmiz.\n\nIltimos quyidagi tugma orqali ro'yxatdan o'ting",
         //   openWebKeyboardDriver
         // );
+        // await bot.sendMessage(
+        //   chatId,
+        //   "Anketa yaratish",
+        //   openWebKeyboardDriverPost
+        // );
         await bot.sendMessage(
           chatId,
-          "Anketa yaratish",
+          "Buyurtma berish",
           openWebKeyboardPassengers
         );
       } catch (err) {
