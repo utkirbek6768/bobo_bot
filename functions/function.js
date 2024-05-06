@@ -297,9 +297,14 @@ const createOrder = async (bot, chatId, data, from) => {
           try {
             const driverChatId = queue[where][0].chatId;
             const driver = await Driver.findOne({ chatId: driverChatId });
-            // const { driverPassengersCount } = driver;
-            // const totalPassengersCount =
-            //   passengersCount + driverPassengersCount;
+            const { driverPassengersCount } = driver;
+            const totalPassengersCount =
+              Number(passengersCount) + Number(driverPassengersCount);
+            console.log("driver", driver);
+            console.log("driverChatId", driverChatId);
+            console.log("passengersCount", passengersCount);
+            console.log("driverPassengersCount", driverPassengersCount);
+            console.log("totalPassengersCount", totalPassengersCount);
             if (driver) {
               await bot.sendPhoto(driverChatId, imageOrder, options);
             }
@@ -315,7 +320,6 @@ const createOrder = async (bot, chatId, data, from) => {
             chatId,
             "Buyurtmangiz uchun raxmat, tez orada haydovchilarimiz sizbilan bog'lanishadi."
           );
-
           await bot.sendPhoto(kanalId, imageOrder, optionsForKanal);
         }
       })
