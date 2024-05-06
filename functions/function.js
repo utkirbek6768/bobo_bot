@@ -151,7 +151,6 @@ const createOrder = async (bot, chatId, data, from) => {
       description,
       orderStatus,
     } = data;
-    // .length > 6 ? "+" + cleanPhone : " Kiritilmagan"
     const createOrder = new Order({
       where: where,
       whereto: whereto,
@@ -159,7 +158,7 @@ const createOrder = async (bot, chatId, data, from) => {
       delivery: delivery,
       description: description.length > 0 ? description : "Kiritilmagan",
       orderStatus: orderStatus,
-      phoneNumber: cleanPhone,
+      phoneNumber: `+${cleanPhone}`,
       userName: from.username ? from.username : "",
       passengersChatId: chatId,
       driverChatId: "",
