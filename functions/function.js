@@ -517,7 +517,9 @@ const sendingOrderToDriverOrKanal = async (
 
   const options = {
     caption:
-      `📩 Yangi buyrtma` +
+      `📩 ${
+        command != "at" ? "Yangi buyrtma" : "Buyurtma sizga biriktirildi"
+      }` +
       "\n\n" +
       `📍 Qayrerdan: ${orderWhere == "fer" ? "Farg'onadan" : "Toshkentdan"}` +
       "\n\n" +
@@ -533,7 +535,7 @@ const sendingOrderToDriverOrKanal = async (
       "\n\n" +
       `☎️ Telefon: ${phoneNumber}` +
       "\n\n" +
-      `📲 Telegram: @${from.userName ? from.userName : ""}`,
+      `📲 Telegram: @${from.username ? from.username : ""}`,
     reply_markup: JSON.stringify({
       inline_keyboard:
         (command != "at") | (command == "er")

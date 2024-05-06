@@ -211,8 +211,6 @@ const handleCallbackQuery = async (bot, msg) => {
               msg.from
             );
           } else {
-            console.log("To'g'ri ishladim", msg);
-            console.log("To'g'ri ishladim", msg.message.chat.id);
             functions.sendingOrderToDriverOrKanal(
               bot,
               kanalId,
