@@ -19,6 +19,8 @@ app.use(bodyParser.json());
 
 const TelegramBotToken = "6302856184:AAFr7Wan3KQJlg0d3DLiCZZ6keAuT6zZU98";
 const bot = new TelegramBot(TelegramBotToken, { polling: true });
+// const kanalId = "-1001967326386";
+// bot.sendMessage(kanalId, "bu text");
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -41,7 +43,7 @@ bot.on("web_app_data", async (msg) => {
       const button = msg.web_app_data.button_text;
       const chatId = msg.chat.id;
       if (data && button == "Buyurtma berish") {
-        functions.createOrder(bot, chatId, data, msg.from);
+        functions.createOrder(bot, msg, chatId, data, msg.from);
       } else if (data && button == "Ro'yxatdan o'tish") {
         functions.createDriver(bot, chatId, data, msg.from);
       } else if (data && button == "Post tayorlash") {

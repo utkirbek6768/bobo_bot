@@ -4,15 +4,32 @@ const Queue = require("../schemas/queue.schema");
 const Order = require("../schemas/order.schema");
 const functions = require("../functions/function.js");
 const handleCallbackQuery = async (bot, msg) => {
+  //   console.log(msg);
   const data = JSON.parse(msg.data);
   const chat_instance = msg.chat_instance;
   const chatId = msg.from.id;
-  const fromChatId = msg.from.id;
   //   const kanalId = "-1001962113423"; // bu boboni kanali chatId si
   const kanalId = "-1001967326386";
   const adminId = "177482674";
+
+  ("#10002565hj45khgkh5j4g6hkj546ghj54");
+  "📩 Yangi buyrtma\n" +
+    "\n" +
+    "📍 Qayrerdan: Toshkentdan\n" +
+    "\n" +
+    "📍 Qayerga: Farg'onaga\n" +
+    "\n" +
+    "🔢 Yo'lovchilar soni: 0 ta\n" +
+    "\n" +
+    "📦 Pochta: Yo'q\n" +
+    "\n" +
+    "✒️ Izoh: Kiritilmagan\n" +
+    "\n" +
+    "☎️ Telefon: +998565464646\n" +
+    "\n" +
+    "📲 Telegram: @toirov_utkirbek";
+
   const kanalMessageId = msg.message.message_id;
-  const commonChatId = chat_instance == kanalId ? fromChatId : chatId;
   const chatType = msg.message.chat.type; // supergroup, private
   try {
     if (data.com === "start") {
@@ -110,7 +127,7 @@ const handleCallbackQuery = async (bot, msg) => {
             functions.sendingOrderToDriverOrKanal(
               bot,
               chatId,
-              data,
+              data.id,
               data.vl,
               false,
               msg.from
@@ -173,53 +190,7 @@ const handleCallbackQuery = async (bot, msg) => {
       } else if (data.vl == "nxt") {
         await bot.deleteMessage(chatId, kanalMessageId);
         try {
-          const driver = await Driver.findOne({ chatId: commonChatId });
-          if (!driver) {
-            console.log("Driver not found");
-            return;
-          }
-          const where = driver.where;
-          const queue = await Queue.findOne({});
-          if (!queue) {
-            console.log("Queue is empty");
-            return;
-          }
-          const items = queue[where];
-          const driverIndex = items.findIndex(
-            (item) => item.chatId == commonChatId
-          );
-          if (driverIndex === -1) {
-            console.log("Driver not found in queue");
-            return;
-          }
-          const nextIndex =
-            driverIndex + 1 < items.length ? driverIndex + 1 : null;
-          if (nextIndex != null) {
-            const nextDriverChatId = items[nextIndex].chatId;
-
-            if (!nextDriverChatId) {
-              console.log("Next driver chat ID not found");
-              return;
-            }
-            console.log("bu next nextDriverChatId");
-            functions.sendingOrderToDriverOrKanal(
-              bot,
-              nextDriverChatId,
-              data,
-              data.vl,
-              false,
-              msg.from
-            );
-          } else {
-            functions.sendingOrderToDriverOrKanal(
-              bot,
-              kanalId,
-              data,
-              data.vl,
-              true,
-              msg.from
-            );
-          }
+          functions.handleNextDriver(bot, msg, data.id, kanalId, chatId);
         } catch (err) {
           console.log(err.message);
         }
@@ -233,7 +204,7 @@ const handleCallbackQuery = async (bot, msg) => {
         functions.sendingOrderToDriverOrKanal(
           bot,
           177482674,
-          data,
+          data.id,
           data.vl,
           true,
           msg.from
