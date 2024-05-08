@@ -9,7 +9,6 @@ const functions = require("../functions/function");
 const Driver = require("../schemas/driver.schema");
 
 const handleMessage = async (bot, msg) => {
-  console.log(msg);
   const chatId = msg.chat.id;
 
   try {
@@ -56,11 +55,7 @@ const handleNewDriverRegistration = async (bot, chatId) => {
     //   "Anketa yaratish",
     //   openWebKeyboardDriverPost
     // );
-    // await bot.sendMessage(
-    //   chatId,
-    //   "Buyurtma berish",
-    //   openWebKeyboardPassengers
-    // );
+    await bot.sendMessage(chatId, "Buyurtma berish", openWebKeyboardPassengers);
   } catch (error) {
     console.error("Error handling /newDriverRegistration command:", error);
   }

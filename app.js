@@ -17,10 +17,13 @@ const app = express();
 
 app.use(bodyParser.json());
 
+const TEST_BOT_TOKEN = "6658866622:AAFBGrkHNXsnWdlGkNqYn_qAQmmiYT9w2TI";
+
 const TelegramBotToken = "6302856184:AAFr7Wan3KQJlg0d3DLiCZZ6keAuT6zZU98";
 const bot = new TelegramBot(TelegramBotToken, { polling: true });
-// const kanalId = "-1001967326386";
-// bot.sendMessage(kanalId, "bu text");
+
+const imageDriver =
+  "https://img.freepik.com/premium-psd/isolated-realistic-shiny-metalic-orange-luxury-city-taxi-cab-car-from-right-front-angle-view_16145-9738.jpg";
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -32,6 +35,7 @@ mongoose
   });
 
 bot.setMyCommands([{ command: "/start", description: "Start" }]);
+
 bot.on("message", async (msg) => handleMessage(bot, msg));
 bot.on("callback_query", async (msg) => handleCallbackQuery(bot, msg));
 bot.onText(/\/start/, async (msg) => StartCommand(bot, msg));
@@ -46,8 +50,8 @@ bot.on("web_app_data", async (msg) => {
         functions.createOrder(bot, msg, chatId, data, msg.from);
       } else if (data && button == "Ro'yxatdan o'tish") {
         functions.createDriver(bot, chatId, data, msg.from);
-      } else if (data && button == "Post tayorlash") {
-        await bot.sendMessage(chatId, "Post tayorlash dan datalar keldi");
+      } else if (data && button == "Anketa yaratish") {
+        await bot.sendMessage(chatId, JSON.stringify(data));
         console.log(data);
       }
     } else {

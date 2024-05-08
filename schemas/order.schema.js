@@ -13,6 +13,7 @@ const OrderSchema = mongoose.Schema(
     passengersChatId: { type: String },
     driverChatId: { type: String },
     driverId: { type: String },
+    messageId: { type: String },
   },
   { timestamps: true }
 );

@@ -14,6 +14,8 @@ const {
 } = require("../markups/markups");
 
 const kanalId = "-1001967326386";
+// const infoGroupChatId = "-1002104497635";
+const infoGroupChatId = "-1001967326386";
 const imageOrder =
   "https://qph.cf2.quoracdn.net/main-qimg-b8c260dba266ea341bef10b4e338c0fe-pjlq";
 const imageDriver =
@@ -164,6 +166,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
       passengersChatId: chatId,
       driverChatId: "",
       driverId: "",
+      messageId: "",
     });
 
     await createOrder
@@ -300,7 +303,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
             const driver = await Driver.findOne({ chatId: driverChatId });
 
             if (driver) {
-              const { order } = driver;
+              const { order, userName } = driver;
               const totalPassengersCount =
                 Number(passengersCount) +
                 (order ? Number(order.passengersCount) : 0);
@@ -308,6 +311,43 @@ const createOrder = async (bot, msg, chatId, data, from) => {
                 handleNextDriver(bot, msg, res._id, kanalId, chatId);
               } else {
                 await bot.sendPhoto(driverChatId, imageOrder, options);
+                const newOrderText =
+                  `📩 Yangi buyurtma ${userName} ga tashlab berildi` +
+                  "\n\n" +
+                  `📍 Qayrerdan: ${
+                    where == "fer" ? "Farg'onadan" : "Toshkentdan"
+                  }` +
+                  "\n" +
+                  `📍 Qayerga: ${
+                    whereto == "fer" ? "Farg'onaga" : "Toshkentga"
+                  }` +
+                  "\n" +
+                  `🔢 Yo'lovchilar soni: ${
+                    passengersCount ? passengersCount + " ta" : "Kiritilmagan"
+                  }` +
+                  "\n" +
+                  `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
+                  "\n" +
+                  `✒️ Izoh: ${
+                    description.length > 0 ? description : "Kiritilmagan"
+                  }` +
+                  "\n\n" +
+                  `🔑 KEY: ${resId}`;
+                const infoRes = await bot.sendMessage(
+                  infoGroupChatId,
+                  newOrderText
+                );
+                if (!infoRes) {
+                  console.log("infoRes erroe");
+                }
+                console.log("infoRes", infoRes);
+                updateOrder(
+                  bot,
+                  driver._id,
+                  resId,
+                  "messageId",
+                  infoRes.message_id
+                );
               }
             }
 
@@ -330,7 +370,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
         console.log(err.message);
       });
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
   }
 };
 
@@ -482,9 +522,9 @@ const createPassenger = () => {
   });
 };
 
-const queueDelete = async () => {
-  await Queue.updateMany({}, { $pull: { tosh: { chatId: "7005130337" } } });
-};
+// const queueDelete = async () => {
+//   await Queue.updateMany({}, { $pull: { tosh: { chatId: "7005130337" } } });
+// };
 // queueDelete();
 const deleteOldOrders = async () => {
   try {
@@ -564,6 +604,7 @@ const sendingOrderToDriverOrKanal = async (
       delivery,
       description,
       phoneNumber,
+      messageId,
     } = order;
 
     const options = {
@@ -638,13 +679,14 @@ const sendingOrderToDriverOrKanal = async (
     await bot
       .sendPhoto(chatId, imageOrder, options)
       .then(async (sent) => {
-        const order = await Driver.findOne({ chatId });
-        if (order) {
-          //   console.log(sent);
-          //   console.log(from);
-          //   console.log(order);
+        const driver = await Driver.findOne({ chatId });
+        if (driver) {
           const nextOrderText =
-            `📩 Buyurtma navbatdagi haydovchi ( ${order.userName} ) ga o'tkazib yuborildi` +
+            `${
+              command != "at"
+                ? `📩 Buyurtma navbatdagi haydovchi ( ${driver.userName} ) ga o'tkazib yuborildi`
+                : `📩 Buyurtmani  ( ${driver.userName} ) qabul qildi`
+            }` +
             "\n\n" +
             `📍 Qayrerdan: ${
               orderWhere == "fer" ? "Farg'onadan" : "Toshkentdan"
@@ -664,7 +706,22 @@ const sendingOrderToDriverOrKanal = async (
             "\n\n" +
             `🔑 KEY: ${_id}`;
           if (!kanal) {
-            await bot.sendMessage(kanalId, nextOrderText);
+            const infoRes = await bot.sendMessage(
+              infoGroupChatId,
+              nextOrderText
+            );
+            if (!infoRes) {
+              console.log("infoRes erroe");
+            }
+            // console.log("infoRes", infoRes);
+            updateOrder(
+              bot,
+              driver._id,
+              order._id,
+              "messageId",
+              infoRes.message_id
+            );
+            await bot.deleteMessage(infoGroupChatId, messageId);
           }
         }
       })
