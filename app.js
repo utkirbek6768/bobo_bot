@@ -36,11 +36,20 @@ mongoose
 
 bot.setMyCommands([{ command: "/start", description: "Start" }]);
 
+// bot.setMyCommands([
+//   { command: "/start", description: "Start" },
+//   {
+//     command: "/newDriverRegistration",
+//     description: "Register",
+//   },
+// ]);
+
 bot.on("message", async (msg) => handleMessage(bot, msg));
 bot.on("callback_query", async (msg) => handleCallbackQuery(bot, msg));
 bot.onText(/\/start/, async (msg) => StartCommand(bot, msg));
 bot.onText(/\/Haydovchiman/, async (msg) => driverRegister(bot, msg));
 bot.on("web_app_data", async (msg) => {
+  console.log(msg);
   try {
     if (msg.web_app_data && msg.web_app_data.data) {
       const data = JSON.parse(msg.web_app_data.data);
@@ -49,6 +58,8 @@ bot.on("web_app_data", async (msg) => {
       if (data && button == "Buyurtma berish") {
         functions.createOrder(bot, msg, chatId, data, msg.from);
       } else if (data && button == "Ro'yxatdan o'tish") {
+        // console.log("===>", data);
+        // return;
         functions.createDriver(bot, chatId, data, msg.from);
       } else if (data && button == "Anketa yaratish") {
         await bot.sendMessage(chatId, JSON.stringify(data));

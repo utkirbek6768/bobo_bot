@@ -54,6 +54,38 @@ const openWebKeyboardDriverPost = {
     ],
   },
 };
+const oneFile = {
+  reply_markup: {
+    resize_keyboard: true,
+    one_time_keyboard: true,
+    keyboard: [
+      [
+        {
+          text: "One File",
+          web_app: {
+            url: "https://onefile.netlify.app/",
+          },
+        },
+      ],
+    ],
+  },
+};
+const exprement = {
+  reply_markup: {
+    resize_keyboard: true,
+    one_time_keyboard: true,
+    keyboard: [
+      [
+        {
+          text: "Exprement",
+          web_app: {
+            url: "https://bobomurodsite.netlify.app/exprement",
+          },
+        },
+      ],
+    ],
+  },
+};
 
 // ---------------------------------------------------------------
 
@@ -79,4 +111,6 @@ module.exports = {
   openWebKeyboardPassengers,
   openWebKeyboardDriver,
   openWebKeyboardDriverPost,
+  oneFile,
+  exprement,
 };

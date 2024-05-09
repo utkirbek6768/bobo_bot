@@ -7,8 +7,9 @@ const DriverSchema = mongoose.Schema(
     phoneNumber: { type: String, required: true },
     carType: { type: String },
     tariff: { type: String },
-    shift: { type: Boolean, default: false }, // smenada
-    queue: { type: Boolean, default: false }, // navbatda
+    approvedByAdmin: { type: Boolean, default: false },
+    shift: { type: Boolean, default: false },
+    queue: { type: Boolean, default: false },
     where: { type: String },
     telegramName: { type: String },
     chatId: { type: String, required: true, unique: true },
@@ -20,26 +21,5 @@ const DriverSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// const DriverSchema = mongoose.Schema(
-//   {
-//     userName: { type: String },
-//     carNumber: { type: String },
-//     phoneNumber: { type: String },
-//     carType: { type: String },
-//     tariff: { type: String },
-//     shift: { type: Boolean, default: false }, // smenada
-//     queue: { type: Boolean, default: false }, // navbatda
-//     where: { type: String },
-//     telegramName: { type: String },
-//     chatId: { type: String },
-//     active: { type: Boolean },
-//     order: {
-//       id: { type: [String] },
-//       passengersCount: { type: Number },
-//     },
-//   },
-//   { timestamps: true }
-// );
 
 module.exports = mongoose.model("Driver", DriverSchema);

@@ -12,23 +12,6 @@ const handleCallbackQuery = async (bot, msg) => {
   const kanalId = "-1001967326386";
   const adminId = "177482674";
 
-  ("#10002565hj45khgkh5j4g6hkj546ghj54");
-  "📩 Yangi buyrtma\n" +
-    "\n" +
-    "📍 Qayrerdan: Toshkentdan\n" +
-    "\n" +
-    "📍 Qayerga: Farg'onaga\n" +
-    "\n" +
-    "🔢 Yo'lovchilar soni: 0 ta\n" +
-    "\n" +
-    "📦 Pochta: Yo'q\n" +
-    "\n" +
-    "✒️ Izoh: Kiritilmagan\n" +
-    "\n" +
-    "☎️ Telefon: +998565464646\n" +
-    "\n" +
-    "📲 Telegram: @toirov_utkirbek";
-
   const kanalMessageId = msg.message.message_id;
   const chatType = msg.message.chat.type; // supergroup, private
   try {
@@ -37,7 +20,7 @@ const handleCallbackQuery = async (bot, msg) => {
         await bot.deleteMessage(chatId, msg.message.message_id);
         functions.changeRegion(bot, chatId);
       } catch (error) {
-        console.log(error);
+        console.log(error.message);
       }
     } else if (data.com === "region") {
       try {
@@ -210,6 +193,38 @@ const handleCallbackQuery = async (bot, msg) => {
           msg.from
         );
       }
+    } else if (data.cm === "confirm") {
+      if (data.vl === "yes") {
+        await bot.deleteMessage(chatId, msg.message.message_id);
+        const res = await Driver.findOneAndUpdate(
+          { chatId: data.id },
+          { $set: { approvedByAdmin: true } },
+          { new: true }
+        );
+        if (res) {
+          if (res.approvedByAdmin === true) {
+            if (res.carNumber && !res.shift) {
+              await functions.sendStartShiftMessage(bot, data.id, res.userName);
+            } else if (res.carNumber && res.shift) {
+              await functions.sendStopShiftMessage(bot, data.id, res.where);
+            } else {
+              await functions.sendStopShiftMessage(bot, data.id);
+            }
+          } else {
+            await bot.sendMessage(
+              chatId,
+              "Hurmatli haydovchi arizangiz adminga yuborildi tasdiqlanishi bilan sizga habar beramiz."
+            );
+          }
+        } else {
+          functions.sendWelcomeMessage(bot, chatId);
+        }
+      } else if (data.vl === "no") {
+        console.log(data.vl, data.id);
+        const res = await Driver.findOneAndDelete({ chatId: data.id });
+        console.log(res);
+      }
+    } else {
     }
   } catch (error) {
     console.error(error.message);

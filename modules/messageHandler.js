@@ -4,13 +4,15 @@ const {
   openWebKeyboardDriver,
   openWebKeyboardDriverPost,
   openWebKeyboardPassengers,
+  oneFile,
+  exprement,
 } = require("../markups/markups");
 const functions = require("../functions/function");
 const Driver = require("../schemas/driver.schema");
 
 const handleMessage = async (bot, msg) => {
   const chatId = msg.chat.id;
-
+  //   console.log(msg);
   try {
     if (msg.text == "/start") {
       await handleStartCommand(bot, chatId);
@@ -18,6 +20,16 @@ const handleMessage = async (bot, msg) => {
       functions.sendWelcomeMessage(bot, msg.from.id);
     } else if (msg.text == "/newDriverRegistration") {
       await handleNewDriverRegistration(bot, chatId);
+    } else if (msg.text == "/newOrderButton") {
+      await bot.sendMessage(
+        chatId,
+        "Buyurtma berish",
+        openWebKeyboardPassengers
+      );
+    } else if (msg.text == "/onefile") {
+      await bot.sendMessage(chatId, "One File", oneFile);
+    } else if (msg.text == "/exprement") {
+      await bot.sendMessage(chatId, "exprement", exprement);
     }
   } catch (error) {
     console.error("Error handling message:", error);
@@ -28,12 +40,19 @@ const handleStartCommand = async (bot, chatId) => {
   try {
     const res = await Driver.findOne({ chatId: chatId });
     if (res) {
-      if (res.carNumber && !res.shift) {
-        await functions.sendStartShiftMessage(bot, chatId, res.userName);
-      } else if (res.carNumber && res.shift) {
-        await functions.sendStopShiftMessage(bot, chatId, res.where);
+      if (res.approvedByAdmin === true) {
+        if (res.carNumber && !res.shift) {
+          await functions.sendStartShiftMessage(bot, chatId, res.userName);
+        } else if (res.carNumber && res.shift) {
+          await functions.sendStopShiftMessage(bot, chatId, res.where);
+        } else {
+          await functions.sendStopShiftMessage(bot, chatId);
+        }
       } else {
-        await functions.sendStopShiftMessage(bot, chatId);
+        await bot.sendMessage(
+          chatId,
+          "Hurmatli haydovchi arizangiz adminga yuborildi tasdiqlanishi bilan sizga habar beramiz."
+        );
       }
     } else {
       functions.sendWelcomeMessage(bot, chatId);
@@ -55,7 +74,7 @@ const handleNewDriverRegistration = async (bot, chatId) => {
     //   "Anketa yaratish",
     //   openWebKeyboardDriverPost
     // );
-    await bot.sendMessage(chatId, "Buyurtma berish", openWebKeyboardPassengers);
+    // await bot.sendMessage(chatId, "Buyurtma berish", openWebKeyboardPassengers);
   } catch (error) {
     console.error("Error handling /newDriverRegistration command:", error);
   }

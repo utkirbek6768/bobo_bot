@@ -14,6 +14,7 @@ const {
 } = require("../markups/markups");
 
 const kanalId = "-1001967326386";
+const adminId = "177482674";
 // const infoGroupChatId = "-1002104497635";
 const infoGroupChatId = "-1001967326386";
 const imageOrder =
@@ -393,8 +394,8 @@ const createDriver = async (bot, chatId, data, from) => {
 
     const createDriver = new Driver({
       userName: data.userName,
-      telegramName: data.userName,
-      phoneNumber: `+${data.phoneNumber}`,
+      telegramName: "",
+      phoneNumber: `${data.phoneNumber}`,
       carNumber: data.carNumber,
       carType: data.carType,
       tariff: data.tariff,
@@ -411,29 +412,48 @@ const createDriver = async (bot, chatId, data, from) => {
     });
 
     const res = await createDriver.save();
-    const { _id, userName, carNumber, carType, active } = res;
-    const resId = _id.toString();
+    const {
+      _id,
+      userName,
+      telegramName,
+      phoneNumber,
+      carNumber,
+      carType,
+      active,
+    } = res;
+    // const resId = _id.toString();
 
     const options = {
       caption:
-        `📩 Haydovchi malumotlari` +
+        `📩 Yangi haydovchi mavjud uni tasdiqlaysizmi?` +
         "\n\n" +
         `📍 Ismi: ${userName}` +
-        "\n\n" +
+        "\n" +
+        `📍 Tell: ${phoneNumber}` +
+        "\n" +
+        `📍 Telegram: ${telegramName ? telegramName : "kiritilmagan"}` +
+        "\n" +
         `📍 Mashina raqami: ${carNumber}` +
-        "\n\n" +
+        "\n" +
         `🚕 Mashina turi: ${carType}` +
-        "\n\n" +
-        `📦 Haydovchi: ${active ? "Smenada" : "Smenadan tashqarida"}` +
-        "\n\n",
+        "\n",
       reply_markup: JSON.stringify({
         inline_keyboard: [
           [
             {
-              text: "Smenani boshlash",
+              text: "Tasdiqlash",
               callback_data: JSON.stringify({
-                com: "start",
-                id: resId,
+                cm: "confirm",
+                vl: "yes",
+                id: res.chatId,
+              }),
+            },
+            {
+              text: "Bekor qilish",
+              callback_data: JSON.stringify({
+                cm: "confirm",
+                vl: "no",
+                id: res.chatId,
               }),
             },
           ],
@@ -441,12 +461,12 @@ const createDriver = async (bot, chatId, data, from) => {
       }),
     };
 
-    await bot.sendPhoto(chatId, imageDriver, options);
-    // await bot.sendMessage(
-    //   chatId,
-    //   'Kanalga elon berish uchun "Post atyorlash" tugmasida foydalaning',
-    //   openWebKeyboardDriverPost
-    // );
+    await bot.sendPhoto(adminId, imageDriver, options);
+    // await bot.sendPhoto(chatId, imageDriver, options);
+    bot.sendMessage(
+      chatId,
+      "Arizangiz muvofaqqiyatli yaratildi admin tasdiqlagandan so'ng ishni boshlashingiz mumkin."
+    );
   } catch (error) {
     console.log(error);
   }
@@ -684,8 +704,16 @@ const sendingOrderToDriverOrKanal = async (
           const nextOrderText =
             `${
               command != "at"
-                ? `📩 Buyurtma navbatdagi haydovchi ( ${driver.userName} ) ga o'tkazib yuborildi`
-                : `📩 Buyurtmani  ( ${driver.userName} ) qabul qildi`
+                ? `📩 Buyurtma navbatdagi haydovchi ( ${driver.userName}: ${
+                    driver.telegramName.length > 0
+                      ? driver.telegramName
+                      : driver.phoneNumber
+                  } ) ga o'tkazib yuborildi`
+                : `📩 Buyurtmani  ( ${driver.userName}: ${
+                    driver.telegramName.length > 0
+                      ? driver.telegramName
+                      : driver.phoneNumber
+                  } ) qabul qildi`
             }` +
             "\n\n" +
             `📍 Qayrerdan: ${
