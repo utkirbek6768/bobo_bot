@@ -18,8 +18,13 @@ const adminId = "177482674";
 // const infoGroupChatId = "-1002104497635";
 const infoGroupChatId = "-1001967326386";
 
-const imageOrder = "./images/order.jpg";
-const imageDriver = "./images/driver_car.jpg";
+// const imageOrder = "./images/order.jpg";
+// const imageDriver = "./images/driver_car.jpg";
+
+const imageOrder =
+  "https://qph.cf2.quoracdn.net/main-qimg-b8c260dba266ea341bef10b4e338c0fe-pjlq";
+const imageDriver =
+  "https://img.freepik.com/premium-psd/isolated-realistic-shiny-metalic-orange-luxury-city-taxi-cab-car-from-right-front-angle-view_16145-9738.jpg";
 
 const sendWelcomeMessage = async (bot, chatId) => {
   try {
@@ -312,7 +317,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
               } else {
                 await bot.sendPhoto(driverChatId, imageOrder, options);
                 const newOrderText =
-                  `📩 Yangi buyurtma ${userName} ga tashlab berildi` +
+                  `♻️ Yangi buyurtma ( ${userName} ) ga tashlab berildi` +
                   "\n\n" +
                   `📍 Qayrerdan: ${
                     where == "fer" ? "Farg'onadan" : "Toshkentdan"
@@ -703,7 +708,7 @@ const sendingOrderToDriverOrKanal = async (
           const nextOrderText =
             `${
               command === "nxt"
-                ? `⏭ Buyurtma navbatdagi haydovchi ( ${driver.userName}: ${
+                ? `♻️ Buyurtma navbatdagi haydovchi ( ${driver.userName}: ${
                     driver.telegramName
                       ? driver.telegramName
                       : driver.phoneNumber
