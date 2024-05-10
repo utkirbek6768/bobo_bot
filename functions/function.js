@@ -15,9 +15,7 @@ const {
 
 const kanalId = "-1001967326386";
 const adminId = "177482674";
-// const infoGroupChatId = "-1002104497635";
 const infoGroupChatId = "-1001967326386";
-
 // const imageOrder = "./images/order.jpg";
 // const imageDriver = "./images/driver_car.jpg";
 
@@ -227,7 +225,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
               ],
               [
                 {
-                  text: "⏭O'tkazib yuborish",
+                  text: "♻️O'tkazib yuborish",
                   callback_data: JSON.stringify({
                     cm: newOrder,
                     vl: next,
@@ -526,43 +524,6 @@ const updateDriver = async (
   }
 };
 
-const queueOut = async (region, chatId) => {
-  try {
-    const queueUpdate = await Queue.findOneAndUpdate(
-      {},
-      { $pull: { [region]: { chatId: chatId } } },
-      { new: true }
-    );
-    return queueUpdate;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const createPassenger = () => {
-  const passenger = new Passenger({
-    userName: "",
-    phoneNumber: "",
-    chatId: "",
-  });
-};
-
-// const queueDelete = async () => {
-//   await Queue.updateMany({}, { $pull: { tosh: { chatId: "7005130337" } } });
-// };
-// queueDelete();
-const deleteOldOrders = async () => {
-  try {
-    const threeDaysAgo = new Date();
-    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-
-    const result = await Order.deleteMany({ createdAt: { $lt: threeDaysAgo } });
-    console.log(`${result.deletedCount} orders deleted`);
-  } catch (error) {
-    console.error("Error deleting orders:", error);
-  }
-};
-
 const handleNextDriver = async (bot, msg, orderId, kanalId, chatId) => {
   try {
     const driver = await Driver.findOne({ chatId: chatId });
@@ -663,7 +624,7 @@ const sendingOrderToDriverOrKanal = async (
             ? [
                 [
                   {
-                    text: "✅ Buyurtmani oldim",
+                    text: "✅Buyurtmani oldim",
                     callback_data: JSON.stringify({
                       cm: "nor",
                       vl: "at",
@@ -676,7 +637,7 @@ const sendingOrderToDriverOrKanal = async (
                   ? []
                   : [
                       {
-                        text: "⏭ O'tkazib yuborish",
+                        text: "♻️O'tkazib yuborish",
                         callback_data: JSON.stringify({
                           cm: "nor",
                           vl: "nxt",
@@ -687,7 +648,7 @@ const sendingOrderToDriverOrKanal = async (
                     ],
                 [
                   {
-                    text: "❌ Buyurtmada xatolik",
+                    text: "❌Buyurtmada xatolik",
                     callback_data: JSON.stringify({
                       cm: "nor",
                       vl: "er",
@@ -748,7 +709,6 @@ const sendingOrderToDriverOrKanal = async (
             if (!infoRes) {
               console.log("infoRes erroe");
             }
-            // console.log("infoRes", infoRes);
             updateOrder(
               bot,
               driver._id,
@@ -774,7 +734,46 @@ const sendingOrderToDriverOrKanal = async (
   }
 };
 
+const queueOut = async (region, chatId) => {
+  try {
+    const queueUpdate = await Queue.findOneAndUpdate(
+      {},
+      { $pull: { [region]: { chatId: chatId } } },
+      { new: true }
+    );
+    return queueUpdate;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const createPassenger = () => {
+  const passenger = new Passenger({
+    userName: "",
+    phoneNumber: "",
+    chatId: "",
+  });
+};
+
+// const queueDelete = async () => {
+//   await Queue.updateMany({}, { $pull: { tosh: { chatId: "7005130337" } } });
+// };
+// queueDelete();
+
 // ========bu eski orderlani o'chirish uchun============
+
+const deleteOldOrders = async () => {
+  try {
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+    const result = await Order.deleteMany({ createdAt: { $lt: threeDaysAgo } });
+    console.log(`${result.deletedCount} orders deleted`);
+  } catch (error) {
+    console.error("Error deleting orders:", error);
+  }
+};
+
 const checkAndDeleteOrders = async () => {
   const currentDate = new Date();
   if (currentDate.getHours() === 0 && currentDate.getMinutes() === 0) {

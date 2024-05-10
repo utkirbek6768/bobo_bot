@@ -14,7 +14,7 @@ const handleMessage = async (bot, msg) => {
   const chatId = msg.chat.id;
   //   console.log(msg);
   try {
-    if (msg.text == "/start") {
+    if (msg.text == "/start" || msg.text == "/status") {
       await handleStartCommand(bot, chatId);
     } else if (msg.text == "/start@tashkent_fergana_dispatcher_bot") {
       functions.sendWelcomeMessage(bot, msg.from.id);
