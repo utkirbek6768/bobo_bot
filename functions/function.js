@@ -394,12 +394,13 @@ const updateOrder = async (bot, driverId, orderId, item, value) => {
 
 const createDriver = async (bot, chatId, data, from) => {
   try {
+    const cleanPhone = data.phoneNumber.toString().replace(/[\s\+]/g, "");
     await Driver.deleteMany({ chatId: chatId });
 
     const createDriver = new Driver({
       userName: data.userName,
       telegramName: "",
-      phoneNumber: `${data.phoneNumber}`,
+      phoneNumber: `+${cleanPhone}`,
       carNumber: data.carNumber,
       carType: data.carType,
       tariff: data.tariff,
