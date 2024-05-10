@@ -17,10 +17,14 @@ const kanalId = "-1001967326386";
 const adminId = "177482674";
 // const infoGroupChatId = "-1002104497635";
 const infoGroupChatId = "-1001967326386";
+
 const imageOrder =
   "https://qph.cf2.quoracdn.net/main-qimg-b8c260dba266ea341bef10b4e338c0fe-pjlq";
 const imageDriver =
   "https://img.freepik.com/premium-psd/isolated-realistic-shiny-metalic-orange-luxury-city-taxi-cab-car-from-right-front-angle-view_16145-9738.jpg";
+
+// const imageOrder = "./images/order.jpg";
+// const imageDriver = "./images/driver_car.jpg";
 
 const sendWelcomeMessage = async (bot, chatId) => {
   try {
@@ -341,7 +345,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
                 if (!infoRes) {
                   console.log("infoRes erroe");
                 }
-                console.log("infoRes", infoRes);
+                // console.log("infoRes", infoRes);
                 updateOrder(
                   bot,
                   driver._id,
@@ -703,17 +707,19 @@ const sendingOrderToDriverOrKanal = async (
         if (driver) {
           const nextOrderText =
             `${
-              command != "at"
+              command === "nxt"
                 ? `📩 Buyurtma navbatdagi haydovchi ( ${driver.userName}: ${
-                    driver.telegramName.length > 0
+                    driver.telegramName
                       ? driver.telegramName
                       : driver.phoneNumber
                   } ) ga o'tkazib yuborildi`
-                : `📩 Buyurtmani  ( ${driver.userName}: ${
-                    driver.telegramName.length > 0
+                : command === "at"
+                ? `📩 Buyurtmani  ( ${driver.userName}: ${
+                    driver.telegramName
                       ? driver.telegramName
                       : driver.phoneNumber
                   } ) qabul qildi`
+                : "Ushbu buyurtmada xatolik aniqlandi va adminga yuborildi"
             }` +
             "\n\n" +
             `📍 Qayrerdan: ${
@@ -750,11 +756,17 @@ const sendingOrderToDriverOrKanal = async (
               infoRes.message_id
             );
             await bot.deleteMessage(infoGroupChatId, messageId);
+          } else {
+            try {
+              await bot.deleteMessage(infoGroupChatId, messageId);
+            } catch (error) {
+              console.log(error.message);
+            }
           }
         }
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.message);
       });
   } catch (error) {
     console.error(error.message);

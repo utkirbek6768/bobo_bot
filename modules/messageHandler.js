@@ -18,7 +18,7 @@ const handleMessage = async (bot, msg) => {
       await handleStartCommand(bot, chatId);
     } else if (msg.text == "/start@tashkent_fergana_dispatcher_bot") {
       functions.sendWelcomeMessage(bot, msg.from.id);
-    } else if (msg.text == "/newDriverRegistration") {
+    } else if (msg.text == "/new_driver") {
       await handleNewDriverRegistration(bot, chatId);
     } else if (msg.text == "/newOrderButton") {
       await bot.sendMessage(
@@ -29,7 +29,7 @@ const handleMessage = async (bot, msg) => {
     } else if (msg.text == "/onefile") {
       await bot.sendMessage(chatId, "One File", oneFile);
     } else if (msg.text == "/exprement") {
-      await bot.sendMessage(chatId, "exprement", exprement);
+      await bot.sendMessage(chatId, "exprement", openWebKeyboardDriverPost);
     }
   } catch (error) {
     console.error("Error handling message:", error);
@@ -76,7 +76,7 @@ const handleNewDriverRegistration = async (bot, chatId) => {
     // );
     // await bot.sendMessage(chatId, "Buyurtma berish", openWebKeyboardPassengers);
   } catch (error) {
-    console.error("Error handling /newDriverRegistration command:", error);
+    console.error("Error handling /new_driver command:", error);
   }
 };
 

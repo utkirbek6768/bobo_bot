@@ -2,16 +2,19 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const http = require("http");
 const TelegramBot = require("node-telegram-bot-api");
+const axios = require("axios");
+const fs = require("fs");
+const mongoose = require("mongoose");
+
 // Importing custom modules
+
+const functions = require("./functions/function");
 const { handleMessage } = require("./modules/messageHandler");
+const { handleCallbackQuery } = require("./modules/callbackQueryHandler");
 const {
   StartCommand,
   driverRegister,
 } = require("./modules/startCommandHandler");
-
-const { handleCallbackQuery } = require("./modules/callbackQueryHandler");
-const functions = require("./functions/function");
-const mongoose = require("mongoose");
 
 const app = express();
 
@@ -22,9 +25,6 @@ const TEST_BOT_TOKEN = "6658866622:AAFBGrkHNXsnWdlGkNqYn_qAQmmiYT9w2TI";
 const TelegramBotToken = "6302856184:AAFr7Wan3KQJlg0d3DLiCZZ6keAuT6zZU98";
 const bot = new TelegramBot(TelegramBotToken, { polling: true });
 
-const imageDriver =
-  "https://img.freepik.com/premium-psd/isolated-realistic-shiny-metalic-orange-luxury-city-taxi-cab-car-from-right-front-angle-view_16145-9738.jpg";
-
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
@@ -34,15 +34,17 @@ mongoose
     console.log("DB connection error: ");
   });
 
-bot.setMyCommands([{ command: "/start", description: "Start" }]);
-
-// bot.setMyCommands([
-//   { command: "/start", description: "Start" },
-//   {
-//     command: "/newDriverRegistration",
-//     description: "Register",
-//   },
-// ]);
+bot.setMyCommands([
+  { command: "/start", description: "Start" },
+  {
+    command: "/new_driver",
+    description: "Ro'yxatdan o'tish",
+  },
+  {
+    command: "/status",
+    description: "Mening holatim",
+  },
+]);
 
 bot.on("message", async (msg) => handleMessage(bot, msg));
 bot.on("callback_query", async (msg) => handleCallbackQuery(bot, msg));
@@ -63,7 +65,7 @@ bot.on("web_app_data", async (msg) => {
         functions.createDriver(bot, chatId, data, msg.from);
       } else if (data && button == "Anketa yaratish") {
         await bot.sendMessage(chatId, JSON.stringify(data));
-        console.log(data);
+        // console.log(data);
       }
     } else {
       console.error("web_app_data is missing in the message.");
