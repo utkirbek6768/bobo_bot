@@ -18,13 +18,8 @@ const adminId = "177482674";
 // const infoGroupChatId = "-1002104497635";
 const infoGroupChatId = "-1001967326386";
 
-const imageOrder =
-  "https://qph.cf2.quoracdn.net/main-qimg-b8c260dba266ea341bef10b4e338c0fe-pjlq";
-const imageDriver =
-  "https://img.freepik.com/premium-psd/isolated-realistic-shiny-metalic-orange-luxury-city-taxi-cab-car-from-right-front-angle-view_16145-9738.jpg";
-
-// const imageOrder = "./images/order.jpg";
-// const imageDriver = "./images/driver_car.jpg";
+const imageOrder = "./images/order.jpg";
+const imageDriver = "./images/driver_car.jpg";
 
 const sendWelcomeMessage = async (bot, chatId) => {
   try {
@@ -32,7 +27,7 @@ const sendWelcomeMessage = async (bot, chatId) => {
       chatId,
       `Assalomu alaykum dispatcher botga xush kelibsiz` +
         "\n\n" +
-        `Buyutma berish tugmasi orqali tez va oson buyurtma bering !` +
+        `Buyutma berish tugmasi orqali tez va oson buyurtma bering! 👇` +
         "\n\n",
       openWebKeyboardPassengers
     );
@@ -216,7 +211,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
             inline_keyboard: [
               [
                 {
-                  text: "Buyurtmani oldim",
+                  text: "✅Buyurtmani oldim",
                   callback_data: JSON.stringify({
                     cm: newOrder,
                     vl: acceptance,
@@ -227,7 +222,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
               ],
               [
                 {
-                  text: "O'tkazib yuborish",
+                  text: "⏭O'tkazib yuborish",
                   callback_data: JSON.stringify({
                     cm: newOrder,
                     vl: next,
@@ -238,7 +233,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
               ],
               [
                 {
-                  text: "Buyurtmada xatolik",
+                  text: "❌Buyurtmada xatolik",
                   callback_data: JSON.stringify({
                     cm: newOrder,
                     vl: error,
@@ -276,7 +271,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
             inline_keyboard: [
               [
                 {
-                  text: "Buyurtmani oldim",
+                  text: "✅Buyurtmani oldim",
                   callback_data: JSON.stringify({
                     cm: newOrder,
                     vl: acceptance,
@@ -287,7 +282,7 @@ const createOrder = async (bot, msg, chatId, data, from) => {
               ],
               [
                 {
-                  text: "Buyurtmada xatolik",
+                  text: "❌Buyurtmada xatolik",
                   callback_data: JSON.stringify({
                     cm: newOrder,
                     vl: error,
@@ -445,7 +440,7 @@ const createDriver = async (bot, chatId, data, from) => {
         inline_keyboard: [
           [
             {
-              text: "Tasdiqlash",
+              text: "✅Tasdiqlash",
               callback_data: JSON.stringify({
                 cm: "confirm",
                 vl: "yes",
@@ -453,7 +448,7 @@ const createDriver = async (bot, chatId, data, from) => {
               }),
             },
             {
-              text: "Bekor qilish",
+              text: "❌Bekor qilish",
               callback_data: JSON.stringify({
                 cm: "confirm",
                 vl: "no",
@@ -633,12 +628,12 @@ const sendingOrderToDriverOrKanal = async (
 
     const options = {
       caption:
-        `📩 ${
+        `${
           command == "at"
             ? "Buyurtma sizga biriktirildi."
             : command == "er"
-            ? "Buyurtmada xatolik."
-            : "Yangi buyrtma"
+            ? "❌ Buyurtmada xatolik."
+            : "📩 Yangi buyrtma"
         }` +
         "\n\n" +
         `📍 Qayrerdan: ${orderWhere == "fer" ? "Farg'onadan" : "Toshkentdan"}` +
@@ -662,7 +657,7 @@ const sendingOrderToDriverOrKanal = async (
             ? [
                 [
                   {
-                    text: "Buyurtmani oldim",
+                    text: "✅ Buyurtmani oldim",
                     callback_data: JSON.stringify({
                       cm: "nor",
                       vl: "at",
@@ -675,7 +670,7 @@ const sendingOrderToDriverOrKanal = async (
                   ? []
                   : [
                       {
-                        text: "O'tkazib yuborish",
+                        text: "⏭ O'tkazib yuborish",
                         callback_data: JSON.stringify({
                           cm: "nor",
                           vl: "nxt",
@@ -686,7 +681,7 @@ const sendingOrderToDriverOrKanal = async (
                     ],
                 [
                   {
-                    text: "Buyurtmada xatolik",
+                    text: "❌ Buyurtmada xatolik",
                     callback_data: JSON.stringify({
                       cm: "nor",
                       vl: "er",
@@ -708,18 +703,18 @@ const sendingOrderToDriverOrKanal = async (
           const nextOrderText =
             `${
               command === "nxt"
-                ? `📩 Buyurtma navbatdagi haydovchi ( ${driver.userName}: ${
+                ? `⏭ Buyurtma navbatdagi haydovchi ( ${driver.userName}: ${
                     driver.telegramName
                       ? driver.telegramName
                       : driver.phoneNumber
                   } ) ga o'tkazib yuborildi`
                 : command === "at"
-                ? `📩 Buyurtmani  ( ${driver.userName}: ${
+                ? `✅ Buyurtmani  ( ${driver.userName}: ${
                     driver.telegramName
                       ? driver.telegramName
                       : driver.phoneNumber
                   } ) qabul qildi`
-                : "Ushbu buyurtmada xatolik aniqlandi va adminga yuborildi"
+                : "❌ Ushbu buyurtmada xatolik aniqlandi va adminga yuborildi"
             }` +
             "\n\n" +
             `📍 Qayrerdan: ${
