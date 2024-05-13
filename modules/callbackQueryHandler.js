@@ -178,8 +178,6 @@ const handleCallbackQuery = async (bot, msg) => {
           console.log(err.message);
         }
       } else if (data.vl == "er") {
-        // console.log(msg.message.message_id);
-        // await bot.deleteMessage(msg.message.chat.id, kanalMessageId);
         await bot.deleteMessage(
           chatType != "supergroup" ? chatId : msg.message.chat.id,
           kanalMessageId
@@ -224,6 +222,18 @@ const handleCallbackQuery = async (bot, msg) => {
         const res = await Driver.findOneAndDelete({ chatId: data.id });
         console.log(res);
       }
+    } else if (data.cm === "backOr") {
+      await bot.deleteMessage(chatId, msg.message.message_id);
+      functions.sendingOrderToChannel(bot, data.id, data.vl);
+    } else if (data.cm === "deleteOr") {
+      await bot.deleteMessage(chatId, msg.message.message_id);
+      const res = await Order.findOneAndDelete({ _id: data.id });
+      if (!res) {
+        console.log("order o'chirilmadi");
+        return;
+      }
+      await bot.sendMessage(kanalId, `${res._id} kalitli o'rder o'chirildi`);
+      console.log(`${res._id} kalitli o'rder o'chirildi`);
     } else {
     }
   } catch (error) {

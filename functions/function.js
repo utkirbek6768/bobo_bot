@@ -16,13 +16,13 @@ const {
 const kanalId = "-1001967326386";
 const adminId = "177482674";
 const infoGroupChatId = "-1001967326386";
-// const imageOrder = "./images/order.jpg";
-// const imageDriver = "./images/driver_car.jpg";
+const imageOrder = "./images/order.jpg";
+const imageDriver = "./images/driver_car.jpg";
 
-const imageOrder =
-  "https://qph.cf2.quoracdn.net/main-qimg-b8c260dba266ea341bef10b4e338c0fe-pjlq";
-const imageDriver =
-  "https://img.freepik.com/premium-psd/isolated-realistic-shiny-metalic-orange-luxury-city-taxi-cab-car-from-right-front-angle-view_16145-9738.jpg";
+// const imageOrder =
+//   "https://qph.cf2.quoracdn.net/main-qimg-b8c260dba266ea341bef10b4e338c0fe-pjlq";
+// const imageDriver =
+//   "https://img.freepik.com/premium-psd/isolated-realistic-shiny-metalic-orange-luxury-city-taxi-cab-car-from-right-front-angle-view_16145-9738.jpg";
 
 const sendWelcomeMessage = async (bot, chatId) => {
   try {
@@ -537,6 +537,7 @@ const handleNextDriver = async (bot, msg, orderId, kanalId, chatId) => {
       console.log("Queue is empty");
       return;
     }
+    kanalId;
     const items = queue[where];
     const driverIndex = items.findIndex((item) => item.chatId == chatId);
     if (driverIndex === -1) {
@@ -620,7 +621,7 @@ const sendingOrderToDriverOrKanal = async (
         `📲 Telegram: @${from.username ? from.username : ""}`,
       reply_markup: JSON.stringify({
         inline_keyboard:
-          (command != "at") | (command == "er")
+          command == "nxt"
             ? [
                 [
                   {
@@ -658,6 +659,29 @@ const sendingOrderToDriverOrKanal = async (
                   },
                 ],
               ]
+            : command == "er"
+            ? [
+                [
+                  {
+                    text: "♻️Kanalga qaytarish",
+                    callback_data: JSON.stringify({
+                      cm: "backOr",
+                      vl: "yes",
+                      id: order._id.toString(),
+                    }),
+                  },
+                ],
+                [
+                  {
+                    text: "❌Buyurtmani o'chirish",
+                    callback_data: JSON.stringify({
+                      cm: "deleteOr",
+                      vl: "yes",
+                      id: order._id.toString(),
+                    }),
+                  },
+                ],
+              ]
             : [],
       }),
     };
@@ -669,13 +693,13 @@ const sendingOrderToDriverOrKanal = async (
         if (driver) {
           const nextOrderText =
             `${
-              command === "nxt"
+              command == "nxt"
                 ? `♻️ Buyurtma navbatdagi haydovchi ( ${driver.userName}: ${
                     driver.telegramName
                       ? driver.telegramName
                       : driver.phoneNumber
                   } ) ga o'tkazib yuborildi`
-                : command === "at"
+                : command == "at"
                 ? `✅ Buyurtmani  ( ${driver.userName}: ${
                     driver.telegramName
                       ? driver.telegramName
@@ -724,6 +748,143 @@ const sendingOrderToDriverOrKanal = async (
               console.log(error.message);
             }
           }
+        }
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+const sendingOrderToChannel = async (bot, orderId, command) => {
+  try {
+    const order = await Order.findOne({ _id: orderId });
+    if (!order) {
+      console.log("Order not found");
+      return;
+    }
+
+    const {
+      _id,
+      orderWhere,
+      whereto,
+      passengersCount,
+      delivery,
+      description,
+      phoneNumber,
+      messageId,
+      userName,
+    } = order;
+
+    const options = {
+      caption:
+        `📩 Yangi buyrtma` +
+        "\n\n" +
+        `📍 Qayrerdan: ${orderWhere == "fer" ? "Farg'onadan" : "Toshkentdan"}` +
+        "\n\n" +
+        `📍 Qayerga: ${whereto == "fer" ? "Farg'onaga" : "Toshkentga"}` +
+        "\n\n" +
+        `🔢 Yo'lovchilar soni: ${
+          passengersCount ? passengersCount + " ta" : "Kiritilmagan"
+        }` +
+        "\n\n" +
+        `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
+        "\n\n" +
+        `✒️ Izoh: ${description.length > 0 ? description : "Kiritilmagan"}` +
+        "\n\n" +
+        `☎️ Telefon: ${phoneNumber}` +
+        "\n\n" +
+        `📲 Telegram: @${userName ? userName : ""}`,
+      reply_markup: JSON.stringify({
+        inline_keyboard: [
+          [
+            {
+              text: "✅Buyurtmani oldim",
+              callback_data: JSON.stringify({
+                cm: "nor",
+                vl: "at",
+                id: order._id.toString(),
+                ct: passengersCount,
+              }),
+            },
+          ],
+          [
+            {
+              text: "❌Buyurtmada xatolik",
+              callback_data: JSON.stringify({
+                cm: "nor",
+                vl: "er",
+                id: order._id.toString(),
+                ct: passengersCount,
+              }),
+            },
+          ],
+        ],
+      }),
+    };
+
+    await bot
+      .sendPhoto(kanalId, imageOrder, options)
+      .then(async (sent) => {
+        const driver = await Driver.findOne({ chatId });
+        if (driver) {
+          const nextOrderText =
+            `${
+              command == "nxt"
+                ? `♻️ Buyurtma navbatdagi haydovchi ( ${driver.userName}: ${
+                    driver.telegramName
+                      ? driver.telegramName
+                      : driver.phoneNumber
+                  } ) ga o'tkazib yuborildi`
+                : command == "at"
+                ? `✅ Buyurtmani  ( ${driver.userName}: ${
+                    driver.telegramName
+                      ? driver.telegramName
+                      : driver.phoneNumber
+                  } ) qabul qildi`
+                : command == "er"
+                ? "❌ Ushbu buyurtmada xatolik aniqlandi va adminga yuborildi"
+                : "♻️ Buyurtma kanalga o'tkazib yuborildi"
+            }` +
+            "\n\n" +
+            `📍 Qayrerdan: ${
+              orderWhere == "fer" ? "Farg'onadan" : "Toshkentdan"
+            }` +
+            "\n" +
+            `📍 Qayerga: ${whereto == "fer" ? "Farg'onaga" : "Toshkentga"}` +
+            "\n" +
+            `🔢 Yo'lovchilar soni: ${
+              passengersCount ? passengersCount + " ta" : "Kiritilmagan"
+            }` +
+            "\n" +
+            `📦 Pochta: ${delivery ? "Bor" : "Yo'q"}` +
+            "\n" +
+            `✒️ Izoh: ${
+              description.length > 0 ? description : "Kiritilmagan"
+            }` +
+            "\n\n" +
+            `🔑 KEY: ${_id}`;
+
+          const messageRes = await bot.sendMessage(
+            infoGroupChatId,
+            nextOrderText
+          );
+          if (!messageRes) {
+            console.log("messageRes error");
+          }
+          const updateOrderRes = updateOrder(
+            bot,
+            driver._id,
+            order._id,
+            "messageId",
+            messageRes.message_id
+          );
+          if (!updateOrderRes) {
+            console.log("updateOrderRes error");
+          }
+          await bot.deleteMessage(infoGroupChatId, messageId);
         }
       })
       .catch((err) => {
@@ -797,4 +958,5 @@ module.exports = {
   queueOut,
   sendingOrderToDriverOrKanal,
   handleNextDriver,
+  sendingOrderToChannel,
 };
