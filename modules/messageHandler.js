@@ -12,7 +12,7 @@ const Driver = require("../schemas/driver.schema");
 
 const handleMessage = async (bot, msg) => {
   const chatId = msg.chat.id;
-  //   console.log(msg);
+  //   console.log("bu msg ==>", msg);
   try {
     if (msg.text == "/start" || msg.text == "/status") {
       await handleStartCommand(bot, chatId);
@@ -28,8 +28,10 @@ const handleMessage = async (bot, msg) => {
       );
     } else if (msg.text == "/onefile") {
       await bot.sendMessage(chatId, "One File", oneFile);
+    } else if (msg.text == "/createpost") {
+      await bot.sendMessage(chatId, "createpost", openWebKeyboardDriverPost);
     } else if (msg.text == "/exprement") {
-      await bot.sendMessage(chatId, "exprement", openWebKeyboardDriverPost);
+      await bot.sendMessage(chatId, "exprement", exprement);
     }
   } catch (error) {
     console.error("Error handling message:", error);

@@ -4,13 +4,13 @@ const Queue = require("../schemas/queue.schema");
 const Order = require("../schemas/order.schema");
 const functions = require("../functions/function.js");
 const handleCallbackQuery = async (bot, msg) => {
-  //   console.log(msg);
+  console.log("bu calback msg =>", msg);
   const data = JSON.parse(msg.data);
   const chat_instance = msg.chat_instance;
+  const adminId = "177482674";
   const chatId = msg.from.id;
   //   const kanalId = "-1001962113423"; // bu boboni kanali chatId si
   const kanalId = "-1001967326386";
-  const adminId = "177482674";
 
   const kanalMessageId = msg.message.message_id;
   const chatType = msg.message.chat.type; // supergroup, private
